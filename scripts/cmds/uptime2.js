@@ -1,172 +1,213 @@
-const axios = require("axios");
+const Canvas = require("canvas");
 const fs = require("fs-extra");
 const path = require("path");
-const os = require("os");
-const { createCanvas, loadImage } = require("canvas");
 const moment = require("moment-timezone");
 
 module.exports = {
-config: {
-name: "up2",
-aliases: ["uptime2", "Up2"],
-version: "22.0.0",
-author: "SIYAM HASAN",
-countDown: 5,
-role: 0,
-category: "system",
-description: "Admin: No Prefix (61588452928616) | User: With Prefix",
-usePrefix: true
-},
+  config: {
+    name: "uptime2",
+    aliases: ["upt2", "up2", "rtm2"],
+    version: "12.0",
+    author: "SIYAM",
+    countDown: 5,
+    role: 0,
 
-onStart: async function ({ api, event, args }) {
-return this.handleUptime({ api, event });
-},
+    shortDescription: {
+      en: "Stylish uptime system"
+    },
 
-onChat: async function ({ api, event }) {
-const { body, senderID } = event;
-if (!body) return;
+    longDescription: {
+      en: "Show bot uptime with premium canvas"
+    },
 
-const adminUID = "61588452928616";
-const msg = body.toLowerCase();
+    category: "system",
 
-if (senderID == adminUID && (msg == "up" || msg == "uptime")) {
-return this.handleUptime({ api, event });
-}
-},
+    guide: {
+      en: "{pn}"
+    }
+  },
 
-handleUptime: async function ({ api, event }) {
-const { threadID, messageID, senderID } = event;
+  onStart: async function ({ api, event }) {
 
-const sendChecking = await api.sendMessage("🔍 Checking system status, please wait...", threadID);
+    const react = (emoji) =>
+      api.setMessageReaction(
+        emoji,
+        event.messageID,
+        () => {},
+        true
+      );
 
-const timeStart = Date.now();
-const uptime = process.uptime();
-const hours = Math.floor(uptime / 3600);
-const minutes = Math.floor((uptime % 3600) / 60);
-const timeString = `${hours}h ${minutes}m`;
+    try {
 
-const usedMem = ((os.totalmem() - os.freemem()) / (1024 ** 3)).toFixed(1);
-const totalMem = (os.totalmem() / (1024 ** 3)).toFixed(1);
-const ramPercentage = ((usedMem / totalMem) * 100).toFixed(0);
-const currentDate = moment.tz("Asia/Dhaka").format("DD/MM/YYYY");
+      react("🥵");
 
-let userName = "User";
-try {
-const info = await api.getUserInfo(senderID);
-userName = info[senderID].name;
-} catch (e) { userName = "Developer"; }
+      // Time & Date
+      const time = moment
+        .tz("Asia/Dhaka")
+        .format("hh:mm A");
 
-const imgUrl = "https://i.imgur.com/TDkyAdv.jpeg";
-const userImgUrl = `https://graph.facebook.com/${senderID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
-const cachePath = path.join(__dirname, "cache", `up_siyam_final_${Date.now()}.png`);
+      const date = moment
+        .tz("Asia/Dhaka")
+        .format("dddd, DD MMMM YYYY");
 
-try {
-if (!fs.existsSync(path.join(__dirname, "cache"))) fs.ensureDirSync(path.join(__dirname, "cache"));
+      // Uptime
+      const uptime = process.uptime();
 
-const image = await loadImage(imgUrl);
-const canvas = createCanvas(image.width, image.height);
-const ctx = canvas.getContext("2d");
-ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const days = Math.floor(uptime / 86400);
+      const hours = Math.floor((uptime % 86400) / 3600);
+      const minutes = Math.floor((uptime % 3600) / 60);
+      const seconds = Math.floor(uptime % 60);
 
-const centerX = canvas.width / 2;
-const centerY = canvas.height / 2;
+      // Commands Auto Count
+      const totalCommands =
+        global.GoatBot?.commands?.size ||
+        global.client?.commands?.size ||
+        Object.keys(global.client?.commands || {}).length ||
+        0;
 
-// --- USER PROFILE ---
-const boxSize = 220;
-const boxX = centerX - (boxSize / 2);
-const boxY = centerY - (boxSize / 2) + 15;
+      // Prefix Auto
+      const prefix =
+        global.GoatBot?.config?.prefix ||
+        global.config?.PREFIX ||
+        ".";
 
-try {
-const userImg = await loadImage(userImgUrl);
-ctx.shadowColor = "#00ffff";
-ctx.shadowBlur = 25;
-ctx.strokeStyle = "#ffffff";
-ctx.lineWidth = 5;
-ctx.strokeRect(boxX, boxY, boxSize, boxSize);
-ctx.shadowBlur = 0; 
-ctx.drawImage(userImg, boxX, boxY, boxSize, boxSize);
+      // Bot Name
+      const botName =
+        global.GoatBot?.config?.botName ||
+        global.config?.BOTNAME ||
+        "SIYAM HASAN";
 
-ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
-ctx.fillRect(boxX, boxY + boxSize - 35, boxSize, 35);
-ctx.textAlign = "center";
-ctx.fillStyle = "#ffffff";
-ctx.font = "bold 16px Arial";
-ctx.fillText(userName.toUpperCase(), centerX, boxY + boxSize - 12);
-} catch (err) { console.log("Image load failed"); }
+      // Canvas
+      const canvas = Canvas.createCanvas(900, 500);
+      const ctx = canvas.getContext("2d");
 
-// --- Circles ---
-const drawCircle = (x, y, radius, percent, label, value, color) => {
-ctx.beginPath();
-ctx.arc(x, y, radius, 0, Math.PI * 2);
-ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
-ctx.lineWidth = 10; ctx.stroke();
-ctx.beginPath();
-ctx.arc(x, y, radius, -Math.PI / 2, (-Math.PI / 2) + (Math.PI * 2 * (percent / 100)));
-ctx.strokeStyle = color;
-ctx.lineWidth = 10; ctx.lineCap = "round"; ctx.stroke();
-ctx.textAlign = "center"; ctx.fillStyle = "#ffffff";
-ctx.font = "bold 20px Arial"; ctx.fillText(value, x, y + 8);
-ctx.font = "14px Arial"; ctx.fillText(label, x, y + 35);
-};
+      // Background
+      const bg = ctx.createLinearGradient(0, 0, 900, 500);
+      bg.addColorStop(0, "#0f0f0f");
+      bg.addColorStop(1, "#1c1c1c");
 
-const uptimeX = boxX - 110;
-const ramX = boxX + boxSize + 110;
-drawCircle(uptimeX, centerY + 30, 60, 75, "UPTIME", timeString, "#00ffcc");
-drawCircle(ramX, centerY - 40, 60, ramPercentage, "RAM", `${ramPercentage}%`, "#ff3366");
-const pingMS = Date.now() - timeStart;
-drawCircle(ramX, centerY + 90, 50, 80, "PING", `${pingMS}ms`, "#ffff00");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, 900, 500);
 
-// Footer
-ctx.textAlign = "center";
-ctx.font = "bold 24px Arial";
-ctx.fillStyle = "#00ff00";
-ctx.fillText("● SYSTEM STATUS: ACTIVE", centerX, canvas.height - 65);
+      // Border
+      ctx.strokeStyle = "#00ffcc";
+      ctx.lineWidth = 5;
+      ctx.strokeRect(15, 15, 870, 470);
 
-// 🔥 UPDATED NAME
-ctx.font = "italic bold 18px Arial"; 
-ctx.fillStyle = "#FFD700"; 
-ctx.fillText("DEVELOPED BY:- 👑 𝐒𝐈𝐘𝐀𝐌 𝐇𝐎𝐒𝐒𝐄𝐈𝐍 👑 ", centerX, canvas.height - 95);
+      // Title
+      ctx.fillStyle = "#00ffcc";
+      ctx.font = "bold 42px Arial";
+      ctx.fillText(botName, 280, 70);
 
-// Bot Name
-ctx.textAlign = "left";
-ctx.font = "bold 30px Arial";
-ctx.shadowColor = "#0000ff"; ctx.shadowBlur = 15;
-ctx.fillStyle = "#33ccff";
+      // Info Box
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "28px Arial";
 
-// 🔥 UPDATED BOT NAME
-ctx.fillText("[👑𝐍𝐈𝐉𝐇𝐔𝐌 𝐂𝐇𝐀𝐓 𝐁𝐎𝐓👑]", 199, 128); 
+      ctx.fillText(`⏰ Real Time : ${time}`, 70, 150);
+      ctx.fillText(`📅 Real Date : ${date}`, 70, 210);
 
-const dateX = centerX + 82;
-const dateY = 120; 
-ctx.shadowBlur = 20; ctx.shadowColor = "#FF00FF";
-ctx.textAlign = "center";
-ctx.font = "bold 22px Arial";
+      ctx.fillText(
+        `⏳ Uptime : ${days}D ${hours}H ${minutes}M ${seconds}S`,
+        70,
+        270
+      );
 
-const gradient = ctx.createLinearGradient(dateX - 70, dateY, dateX + 70, dateY);
-gradient.addColorStop(0, "#FF0000"); 
-gradient.addColorStop(0.5, "#00FF00"); 
-gradient.addColorStop(1, "#0000FF");
+      ctx.fillText(
+        `🤖 Total Commands : ${totalCommands}`,
+        70,
+        330
+      );
 
-ctx.fillStyle = "#FFFFFF"; 
-ctx.fillText(`| ${currentDate}`, dateX, dateY);
+      ctx.fillText(
+        `⚡ Bot Prefix : ${prefix}`,
+        70,
+        390
+      );
 
-ctx.shadowBlur = 0;
-ctx.strokeStyle = gradient; 
-ctx.lineWidth = 1.5;
-ctx.strokeText(`| ${currentDate}`, dateX, dateY);
+      ctx.fillText(
+        `✅ Status : Active`,
+        70,
+        450
+      );
 
-const buffer = canvas.toBuffer("image/png");
-fs.writeFileSync(cachePath, buffer);
+      // Progress Bar
+      const percent = Math.min(
+        100,
+        (uptime / 86400) * 100
+      );
 
-return api.sendMessage({ attachment: fs.createReadStream(cachePath) }, threadID, async (err) => {
-if (!err) api.unsendMessage(sendChecking.messageID);
-if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath);
-}, messageID);
+      ctx.fillStyle = "#333";
+      ctx.fillRect(520, 420, 280, 30);
 
-} catch (e) {
-console.error(e);
-api.unsendMessage(sendChecking.messageID);
-return api.sendMessage("❌ Error generating status!", threadID, messageID);
-}
-}
+      ctx.fillStyle = "#00ff00";
+      ctx.fillRect(
+        520,
+        420,
+        (280 * percent) / 100,
+        30
+      );
+
+      ctx.strokeStyle = "#ffffff";
+      ctx.strokeRect(520, 420, 280, 30);
+
+      // Cache Folder
+      const cachePath = path.join(__dirname, "cache");
+
+      if (!fs.existsSync(cachePath)) {
+        fs.mkdirSync(cachePath, {
+          recursive: true
+        });
+      }
+
+      // Image Path
+      const imagePath = path.join(
+        cachePath,
+        `uptime_${Date.now()}.png`
+      );
+
+      // Save
+      fs.writeFileSync(
+        imagePath,
+        canvas.toBuffer("image/png")
+      );
+
+      react("✅");
+
+      // Send Message
+      await api.sendMessage(
+        {
+          body:
+`╭━━━〔 ${botName} 〕━━━╮
+
+⏰ 𝗥𝗘𝗔𝗟 𝗧𝗜𝗠𝗘
+├‣ ${time}
+
+📅 𝗥𝗘𝗔𝗟 𝗗𝗔𝗧𝗘
+├‣ ${date}
+
+🤖 𝗕𝗢𝗧 𝗦𝗧𝗔𝗧𝗨𝗦
+├‣ Total Commands : ${totalCommands}
+├‣ Bot Prefix : ${prefix}
+├‣ Uptime : ${days}D ${hours}H ${minutes}M ${seconds}S
+╰‣ Status : Active ✅`,
+          attachment: fs.createReadStream(imagePath)
+        },
+        event.threadID,
+        () => fs.unlinkSync(imagePath),
+        event.messageID
+      );
+
+    } catch (err) {
+
+      console.log(err);
+
+      react("❌");
+
+      api.sendMessage(
+        `⚠️ | SIYAM UPTIME ERROR\n${err.message}`,
+        event.threadID,
+        event.messageID
+      );
+    }
+  }
 };
