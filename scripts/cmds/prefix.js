@@ -5,8 +5,8 @@ const getStreamFromURL = global.utils.getStreamFromURL;
 
 // ✅ NEW VIDEO LINK
 const gifList = [
-  "https://files.catbox.moe/evpjnt.mp4",
-  "https://files.catbox.moe/evpjnt.mp4"
+  "https://files.catbox.moe/6j9t8b.mp4",
+  "https://files.catbox.moe/6j9t8b.mp4"
 ];
 
 const getRandomGif = () =>
