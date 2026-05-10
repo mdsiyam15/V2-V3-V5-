@@ -25,8 +25,8 @@ module.exports = {
 
     const mediaLinks = [
       "https://files.catbox.moe/41hfau.jpg",
-      "https://files.catbox.moe/41hfau.jpg",
-      "https://files.catbox.moe/41hfau.jpg"
+      "https://files.catbox.moe/81i9c7.jpg",
+      "https://files.catbox.moe/3hhite.jpg"
     ];
 
     const { commands, aliases } = global.GoatBot;
