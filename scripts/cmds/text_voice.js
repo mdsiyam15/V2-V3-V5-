@@ -35,7 +35,7 @@ module.exports = {
 
     const voiceMap = {
       // 🔥 OLD রাখা
-      "magi": "https://files.catbox.moe/ecgpak.mp4",
+      "ভুদা": "https://files.catbox.moe/gnyx0p.mp3",
       "মাগি": "https://files.catbox.moe/ecgpak.mp4",
 
       "খানকি": "https://files.catbox.moe/ecgpak.mp4",
@@ -54,14 +54,14 @@ module.exports = {
 
       "@তো্ঁমা্ঁগো্ঁ পি্ঁচ্ছি্ঁ উ্ঁদয়্ঁ তা্ঁহ": "https://files.catbox.moe/9w6moo.mp3",
 
-      "@everyone": "https://files.catbox.moe/par79o.mp4",
+      "@everyone": "https://files.catbox.moe/5myzdz.mp4",
 
-      "নিঝুম": "https://files.catbox.moe/par79o.mp4",
+      "নিঝুম": "https://files.catbox.moe/5myzdz.mp4",
 
       // 🔥 emoji + trigger
       ",sex": "https://files.catbox.moe/uy7mrv.mp3",
       ",hot": "https://files.catbox.moe/m5djca.mp3",
-      "s+n": "https://files.catbox.moe/ztwmnf.mp4",
+      "s+n": "https://files.catbox.moe/w9doti.mp4",
       "টুকি": "https://files.catbox.moe/e8ebel.mp3",
       "আমি মাদিহা": "https://files.catbox.moe/9gyjwp.mp3",
       "নুনু": "https://files.catbox.moe/r5uz42.mp3",
