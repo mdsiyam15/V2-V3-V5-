@@ -29,40 +29,57 @@ module.exports = {
         { key: "চুত মারানি", link: "https://files.catbox.moe/zdirp4.mp4" }
       ];
 
-      // ✔️ MATCH (safe check)
+      // ✔️ MATCH
       const match = videoMap.find(v => body.includes(v.key));
       if (!match) return;
 
-      const cachePath = path.join(__dirname, "cache", "video.mp4");
+      const cacheDir = path.join(__dirname, "cache");
+      const cachePath = path.join(cacheDir, `${Date.now()}.mp4`);
 
-      await fs.ensureDir(path.join(__dirname, "cache"));
+      await fs.ensureDir(cacheDir);
 
-      const res = await axios({
+      // ⏳ Loading Message
+      api.sendMessage("⏳ ভিডিও লোড হচ্ছে অপেক্ষা করুন...", event.threadID);
+
+      const response = await axios({
         url: match.link,
         method: "GET",
         responseType: "stream"
       });
 
       const writer = fs.createWriteStream(cachePath);
-      res.data.pipe(writer);
 
-      writer.on("close", () => {
+      response.data.pipe(writer);
+
+      writer.on("finish", async () => {
         api.sendMessage(
           {
-            body: "🎥 Video Sent 💚",
+            body: "🎥 Video Sent Successfully 💚",
             attachment: fs.createReadStream(cachePath)
           },
           event.threadID,
-          () => fs.unlinkSync(cachePath)
+          () => {
+            fs.unlink(cachePath, (err) => {
+              if (err) console.log(err);
+            });
+          }
         );
       });
 
-      writer.on("error", () => {
-        api.sendMessage("❌ ভিডিও লোড করতে সমস্যা হয়েছে!", event.threadID);
+      writer.on("error", (err) => {
+        console.log(err);
+        api.sendMessage(
+          "❌ ভিডিও ডাউনলোড করতে সমস্যা হয়েছে!",
+          event.threadID
+        );
       });
 
     } catch (e) {
       console.log(e);
+      api.sendMessage(
+        "❌ Server Error হয়েছে!",
+        event.threadID
+      );
     }
   }
 };
