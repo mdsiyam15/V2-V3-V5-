@@ -20,7 +20,7 @@ module.exports = {
     if (args[0] && args[0].toLowerCase() === "off") {
       if (activeMurgi.has(event.threadID)) {
         activeMurgi.set(event.threadID, false);
-        return message.reply("🛑 ওকে সিয়াম বস মাগী কে আর চুদবো না.");
+        return message.reply("🛑 ওকে সিয়াম বস মাগির🖕 মেয়েকে আর চুদব না🤬.");
       } else {
         return message.reply("⚠️ Murgi mode is not running.");
       }
@@ -28,7 +28,7 @@ module.exports = {
 
     const mention = Object.keys(event.mentions)[0];
     if (!mention) {
-      return message.reply("কোন মাগির মেয়েকে চুদবো বস আপনি শুধু মেনশন দিন 🥵💦");
+      return message.reply("Please @mention a target first!");
     }
 
     const name = event.mentions[mention];
@@ -79,7 +79,24 @@ module.exports = {
     ];
 
     activeMurgi.set(event.threadID, true);
-    message.reply("🔥 ওকে সিয়াম বস মাগী কে চুদা শুরু করলাম.");
+    message.reply("🔥 Murgi mode started 🫵সিয়াম বস য়ের 🥵চুদা শুরু 🖕.");
 
     try {
-      while
+      while (activeMurgi.get(event.threadID)) {
+        for (const msg of messages) {
+          if (!activeMurgi.get(event.threadID)) break;
+
+          await delay(2500);
+          message.reply({
+            body: `${name}\n${msg}`,
+            mentions: arraytag
+          });
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      activeMurgi.delete(event.threadID);
+      message.reply("Something went wrong!");
+    }
+  }
+};
