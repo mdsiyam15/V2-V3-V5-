@@ -18,14 +18,14 @@ module.exports = {
   onStart: async function ({ args, message, event }) {
 
     // 🔐 ONLY YOUR UID CAN USE
-    const ownerUID = "61560326905548";
+    const ownerUID = "61589656899295";
 
     const isAdmin = event.senderID === ownerUID;
 
     // ❌ NOT OWNER
     if (!isAdmin) {
       return message.reply(`
-👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+  👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 😾 কিরে ফাইল কি 😼তোর বাপে বানাইছে 🙄
 😾 সিয়াম 🪯 বসের 🖕চুদা খাবি নাকি 🥵
           👑 𝆠፝𝐍𝐈𝐉𝐇𝐔𝐌-𝐁𝐎𝐓 👑
