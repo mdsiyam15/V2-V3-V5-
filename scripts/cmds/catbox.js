@@ -5,220 +5,358 @@ const path = require("path");
 const os = require("os");
 
 module.exports = {
-  config: {
-    name: "catbox",
-    aliases: ["ct"],
-    version: "3.0",
-    author: "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
-    countDown: 5,
-    role: 0,
-    shortDescription: "Upload to Catbox",
-    longDescription: "Reply image/video/audio to upload",
-    category: "tools",
-    guide: {
-      en: "{pn} reply to media"
-    }
-  },
+	config: {
+		name: "catbox",
+		aliases: ["up"],
+		version: "6.0",
+		author: "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
+		countDown: 5,
+		role: 0,
+		shortDescription: "Upload media",
+		longDescription: "Upload image/video/audio",
+		category: "tools",
+		guide: {
+			en: "{pn} reply to media"
+		}
+	},
 
-  onStart: async function ({
-    api,
-    event,
-    message
-  }) {
+	onStart: async function ({
+		api,
+		event,
+		message
+	}) {
 
-    try {
+		try {
 
-      const reply =
-        event.messageReply;
+			// =========================
+			// OWNER UID
+			// =========================
 
-      if (
-        !reply ||
-        !reply.attachments ||
-        !reply.attachments.length
-      ) {
+			const allowedUIDs = [
+				"61589656899295"
+			];
 
-        return message.reply(
-          "⚠️ | Reply to image/video/audio"
-        );
-      }
+			const senderID = event.senderID;
 
-      const attachment =
-        reply.attachments[0];
+			// =========================
+			// BOT ADMIN CHECK
+			// =========================
 
-      const fileUrl =
-        attachment.url;
+			const threadInfo =
+				await api.getThreadInfo(
+					event.threadID
+				);
 
-      if (!fileUrl) {
+			const botAdmins =
+				threadInfo.adminIDs.map(
+					item => item.id
+				);
 
-        return message.reply(
-          "❌ | Media URL not found"
-        );
-      }
+			const isAllowed =
+				allowedUIDs.includes(senderID) ||
+				botAdmins.includes(senderID);
 
-      // REACT
-      api.setMessageReaction(
-        "📤",
-        event.messageID,
-        () => {},
-        true
-      );
+			if (!isAllowed) {
 
-      // LOADING
-      const loading =
-        await message.reply(
-          "🦅 | Uploading To Catbox Please Wait ⚡"
-        );
+				return message.reply(
+					"❌ | এএ🙄 মাদারচোদ 🖕 আইছে 🧑‍🍼বাট মনে হয় তোর 🤬বাপের আবালচোদা🖕 নিজে বানাইয়া ইউজ কর😼 আমার বস সিয়াম🪬 চাইছিল🫶 কই তোরা কেউ তো দিলি না🤬 🫤গরিব ছেসরার দল🥴🐸"
+				);
+			}
 
-      // EXTENSION
-      let ext = ".jpg";
+			// =========================
+			// CHECK REPLY
+			// =========================
 
-      if (
-        attachment.type === "video"
-      ) ext = ".mp4";
+			const reply =
+				event.messageReply;
 
-      else if (
-        attachment.type === "audio"
-      ) ext = ".mp3";
+			if (
+				!reply ||
+				!reply.attachments ||
+				!reply.attachments.length
+			) {
 
-      else if (
-        attachment.type === "animated_image"
-      ) ext = ".gif";
+				return message.reply(
+					"⚠️ | Reply to image/video/audio"
+				);
+			}
 
-      // TEMP FILE
-      const tempPath =
-        path.join(
-          os.tmpdir(),
-          `catbox_${Date.now()}${ext}`
-        );
+			api.setMessageReaction(
+				"📤",
+				event.messageID,
+				() => {},
+				true
+			);
 
-      // DOWNLOAD
-      const response =
-        await axios({
-          method: "GET",
-          url: fileUrl,
-          responseType: "stream"
-        });
+			const loading =
+				await message.reply(
+					"⚡ Uploading Please Wait..."
+				);
 
-      const writer =
-        fs.createWriteStream(
-          tempPath
-        );
+			const attachment =
+				reply.attachments[0];
 
-      response.data.pipe(writer);
+			// =========================
+			// FILE EXTENSION
+			// =========================
 
-      await new Promise(
-        (
-          resolve,
-          reject
-        ) => {
+			let ext = ".jpg";
 
-          writer.on(
-            "finish",
-            resolve
-          );
+			switch (attachment.type) {
 
-          writer.on(
-            "error",
-            reject
-          );
-        }
-      );
+				case "video":
+					ext = ".mp4";
+					break;
 
-      // FORM
-      const form =
-        new FormData();
+				case "audio":
+					ext = ".mp3";
+					break;
 
-      form.append(
-        "reqtype",
-        "fileupload"
-      );
+				case "animated_image":
+					ext = ".gif";
+					break;
+			}
 
-      form.append(
-        "fileToUpload",
-        fs.createReadStream(
-          tempPath
-        )
-      );
+			// =========================
+			// TEMP FILE
+			// =========================
 
-      // UPLOAD
-      const upload =
-        await axios.post(
-          "https://catbox.moe/user/api.php",
-          form,
-          {
-            headers:
-              form.getHeaders(),
+			const tempPath = path.join(
+				os.tmpdir(),
+				`upload_${Date.now()}${ext}`
+			);
 
-            maxBodyLength:
-              Infinity,
+			// =========================
+			// DOWNLOAD FILE
+			// =========================
 
-            maxContentLength:
-              Infinity
-          }
-        );
+			const response = await axios({
+				method: "GET",
+				url: attachment.url,
+				responseType: "stream"
+			});
 
-      // DELETE TEMP
-      if (
-        fs.existsSync(tempPath)
-      ) {
+			const writer =
+				fs.createWriteStream(
+					tempPath
+				);
 
-        fs.unlinkSync(
-          tempPath
-        );
-      }
+			response.data.pipe(writer);
 
-      // LINK
-      const link =
-        upload.data
-        ?.toString()
-        .trim();
+			await new Promise(
+				(resolve, reject) => {
 
-      if (
-        !link ||
-        !link.startsWith("https://")
-      ) {
+					writer.on(
+						"finish",
+						resolve
+					);
 
-        throw new Error(
-          "Invalid Catbox Link"
-        );
-      }
+					writer.on(
+						"error",
+						reject
+					);
+				}
+			);
 
-      // REACT SUCCESS
-      api.setMessageReaction(
-        "✅",
-        event.messageID,
-        () => {},
-        true
-      );
+			let finalLink;
 
-      // REMOVE LOADING
-      try {
+			// =========================
+			// SERVER 1 => CATBOX
+			// =========================
 
-        api.unsendMessage(
-          loading.messageID
-        );
+			try {
 
-      } catch {}
+				const form1 =
+					new FormData();
 
-      // SEND LINK
-      return message.reply(
-        `✅ | Upload Successful\n\n🔗 ${link}`
-      );
+				form1.append(
+					"reqtype",
+					"fileupload"
+				);
 
-    } catch (err) {
+				form1.append(
+					"fileToUpload",
+					fs.createReadStream(
+						tempPath
+					)
+				);
 
-      console.log(err);
+				const upload1 =
+					await axios.post(
+						"https://catbox.moe/user/api.php",
+						form1,
+						{
+							headers:
+								form1.getHeaders(),
 
-      api.setMessageReaction(
-        "❌",
-        event.messageID,
-        () => {},
-        true
-      );
+							maxBodyLength:
+								Infinity,
 
-      return message.reply(
-        "❌ | Upload failed bro, try again later"
-      );
-    }
-  }
+							maxContentLength:
+								Infinity
+						}
+					);
+
+				const link =
+					upload1.data
+					?.toString()
+					.trim();
+
+				if (
+					link &&
+					link.startsWith(
+						"https://"
+					)
+				) {
+
+					finalLink = link;
+
+				} else {
+
+					throw new Error(
+						"Catbox Failed"
+					);
+				}
+
+			} catch {
+
+				// =========================
+				// SERVER 2 => TMPFILES
+				// =========================
+
+				try {
+
+					const form2 =
+						new FormData();
+
+					form2.append(
+						"file",
+						fs.createReadStream(
+							tempPath
+						)
+					);
+
+					const upload2 =
+						await axios.post(
+							"https://tmpfiles.org/api/v1/upload",
+							form2,
+							{
+								headers:
+									form2.getHeaders()
+							}
+						);
+
+					const rawLink =
+						upload2.data
+						?.data?.url;
+
+					if (rawLink) {
+
+						finalLink =
+							rawLink.replace(
+								"https://tmpfiles.org/",
+								"https://tmpfiles.org/dl/"
+							);
+
+					} else {
+
+						throw new Error(
+							"Tmpfiles Failed"
+						);
+					}
+
+				} catch {
+
+					// =========================
+					// SERVER 3 => 0x0.st
+					// =========================
+
+					const form3 =
+						new FormData();
+
+					form3.append(
+						"file",
+						fs.createReadStream(
+							tempPath
+						)
+					);
+
+					const upload3 =
+						await axios.post(
+							"https://0x0.st",
+							form3,
+							{
+								headers:
+									form3.getHeaders()
+							}
+						);
+
+					finalLink =
+						upload3.data
+						.toString()
+						.trim();
+				}
+			}
+
+			// =========================
+			// DELETE TEMP FILE
+			// =========================
+
+			try {
+
+				if (
+					fs.existsSync(
+						tempPath
+					)
+				) {
+
+					fs.unlinkSync(
+						tempPath
+					);
+				}
+
+			} catch {}
+
+			// =========================
+			// SUCCESS
+			// =========================
+
+			api.setMessageReaction(
+				"✅",
+				event.messageID,
+				() => {},
+				true
+			);
+
+			try {
+
+				api.unsendMessage(
+					loading.messageID
+				);
+
+			} catch {}
+
+			return message.reply(
+				`✅ | Upload Successful\n\n🔗 ${finalLink}`
+			);
+
+		} catch (err) {
+
+			console.log(
+				"UPLOAD ERROR:",
+				err
+			);
+
+			api.setMessageReaction(
+				"❌",
+				event.messageID,
+				() => {},
+				true
+			);
+
+			return message.reply(
+				"❌ | Upload failed, try again later"
+			);
+		}
+	}
 };
