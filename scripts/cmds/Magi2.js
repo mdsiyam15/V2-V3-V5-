@@ -5,7 +5,7 @@ const path = require("path");
 module.exports = {
   config: {
     name: "Magi2",
-    version: "5.0.0",
+    version: "6.0.0",
     author: "FARHAN-KHAN & SIYAM",
     role: 0,
     countDown: 5,
@@ -18,29 +18,26 @@ module.exports = {
   onStart: async function () {
     const cacheDir = path.join(__dirname, "cache");
 
-    if (!fs.existsSync(cacheDir)) {
-      fs.mkdirSync(cacheDir, { recursive: true });
-    }
+    await fs.ensureDir(cacheDir);
 
     console.log("✅ MAGI2 READY");
   },
 
   onChat: async function ({ api, event }) {
     try {
-      const body = (event.body || "").trim().toLowerCase();
+      if (!event.body) return;
 
-      if (!body) return;
+      const body = event.body.trim();
 
-      // 🎬 VIDEO DATABASE
       const videoMap = [
         {
           key: "কলে আসো",
           link: "https://files.catbox.moe/p8qlso.mp4",
           text: `
 ╭〔 ☎️ CALL REPLY 〕╮
-┃  @Everyone
-┃ 📞  সবাই কলে আসো!
-┃ 😎  gf bf দেওয়া হবে 🧑‍🍼
+┃ @Everyone
+┃ 📞 সবাই কলে আসো!
+┃ 😎 gf bf দেওয়া হবে 🧑‍🍼
 ╰━━━━━━━━━━━━━━━╯
 `
         },
@@ -49,10 +46,10 @@ module.exports = {
           key: "চিপা থেকে বাহির হও",
           link: "https://files.catbox.moe/atdk5k.mp4",
           text: `
- 🤡 FUNNY REPLY
- 🐸 চিপায় থাকলে লাভ নাই ভাই
- 🚶 বাহির হও
- 😂 সবাই  ডাকছে 🙄
+🤡 FUNNY REPLY
+🐸 চিপায় থাকলে লাভ নাই ভাই
+🚶 বাহির হও
+😂 সবাই ডাকছে 🙄
 `
         },
 
@@ -62,8 +59,8 @@ module.exports = {
           text: `
 ╭〔 🔥 REACT BOOST 〕╮
 ┃ ❤️ রিয়েক্ট না দিলে কিক🤪
-┃ 😩  প্রতিবন্ধী মেম্বার?
-┃ 🖕  দরকার নাই🥴
+┃ 😩 প্রতিবন্ধী মেম্বার?
+┃ 🖕 দরকার নাই🥴
 ╰━━━━━━━━━━━━━━━╯
 `
         },
@@ -81,16 +78,15 @@ module.exports = {
           link: "https://files.catbox.moe/zdirp4.mp4",
           text: `
 ╭〔 💀 ATTITUDE MODE 〕╮
-┃ 😎 বেশি হাতমারা ভালো  না
-┃ 🔥 শান্ত থাকো  না হলে কিন্তু
+┃ 😎 বেশি হাতমারা ভালো না
+┃ 🔥 শান্ত থাকো না হলে কিন্তু
 ┃ 🖕 এমন চু*দাচু*দবো
-┃ 🥵 ভার্চুয়াল এ মুখ 
+┃ 🥵 ভার্চুয়াল এ মুখ
 ┃ 😼 দেখাতে পারবে না🖕🥵
 ╰━━━━━━━━━━━━━━━━╯
 `
         },
 
-        // ✅ UPDATED JUTI LINK
         {
           key: "জুতি",
           link: "https://files.catbox.moe/3sjox4.mp4",
@@ -100,37 +96,32 @@ module.exports = {
         }
       ];
 
-      // 🔍 MATCH COMMAND
       const match = videoMap.find(item =>
-        body.includes(item.key.toLowerCase())
+        body.includes(item.key)
       );
 
       if (!match) return;
 
-      // 📂 CACHE FIX
       const cacheDir = path.join(__dirname, "cache");
 
-      if (!fs.existsSync(cacheDir)) {
-        fs.mkdirSync(cacheDir, { recursive: true });
-      }
+      await fs.ensureDir(cacheDir);
 
-      // 🎥 UNIQUE FILE
       const fileName = `Magi2_${Date.now()}.mp4`;
       const filePath = path.join(cacheDir, fileName);
 
-      // 🎭 RANDOM REACTION
       const reactions = ["💔", "👑", "💀", "😹", "🫶", "😔"];
+
       const reactEmoji =
         reactions[Math.floor(Math.random() * reactions.length)];
 
-      // ✨ PREMIUM LOADING MESSAGE
       const loadingMsg = `
-   👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 ✡️
+👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 ✡️
 
-📡 𝗩𝗜𝗗𝗘𝗢 𝗜𝗦 𝗟𝗢𝗔𝗗𝗜𝗡𝗚... ⏳
-⚡ 𝗣𝗟𝗘𝗔𝗦𝗘 𝗪𝗔𝗜𝗧 𝗔 𝗠𝗢𝗠𝗘𝗡𝗧
+📡 𝗩𝗜𝗗𝗘𝗢 𝗜𝗦 𝗟𝗢𝗔𝗗𝗜𝗡𝗚...
 
-      👑 𝗦𝗜𝗬𝗔𝗠 𝗛𝗔𝗦𝗔𝗡 👑
+⏳ PLEASE WAIT...
+
+👑 𝗦𝗜𝗬𝗔𝗠 𝗛𝗔𝗦𝗔𝗡 👑
 `;
 
       api.sendMessage(
@@ -141,7 +132,6 @@ module.exports = {
 
           const loadingMsgID = info.messageID;
 
-          // ❤️ REACTION
           try {
             api.setMessageReaction(
               reactEmoji,
@@ -149,49 +139,49 @@ module.exports = {
               () => {},
               true
             );
-          } catch (e) {}
+          } catch {}
 
           try {
-            // 📥 DOWNLOAD VIDEO
             const response = await axios({
               method: "GET",
               url: match.link,
               responseType: "stream",
-              timeout: 60000
+              timeout: 120000
             });
 
-            // 💾 SAVE FILE
             const writer = fs.createWriteStream(filePath);
 
             response.data.pipe(writer);
 
-            writer.on("finish", async () => {
+            writer.on("close", async () => {
               try {
-                // ❌ REMOVE LOADING
-                api.unsendMessage(loadingMsgID);
 
-                // 📤 SEND VIDEO
+                try {
+                  api.unsendMessage(loadingMsgID);
+                } catch {}
+
                 await api.sendMessage(
                   {
                     body: `${match.text}
 
-  👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
- 🎬 HIGH QUALITY RESPONSE
- 👑 POWERED BY SIYAM
-
+👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+🎬 HIGH QUALITY RESPONSE
+⚡ POWERED BY SIYAM
 `,
                     attachment: fs.createReadStream(filePath)
                   },
                   event.threadID
                 );
 
-                // 🗑️ DELETE CACHE
-                fs.unlink(filePath, () => {});
+                if (fs.existsSync(filePath)) {
+                  fs.unlinkSync(filePath);
+                }
+
               } catch (sendErr) {
                 console.log(sendErr);
 
                 api.sendMessage(
-                  "❌ ভিডিও পাঠাতে সমস্যা হয়েছে",
+                  "❌ ভিডিও পাঠানো যায় নাই",
                   event.threadID
                 );
               }
@@ -200,10 +190,12 @@ module.exports = {
             writer.on("error", async err => {
               console.log(err);
 
-              api.unsendMessage(loadingMsgID);
+              try {
+                api.unsendMessage(loadingMsgID);
+              } catch {}
 
               api.sendMessage(
-                "❌ ভিডিও প্রসেস করতে সমস্যা হয়েছে",
+                "❌ ভিডিও প্রসেস error",
                 event.threadID
               );
 
@@ -215,10 +207,12 @@ module.exports = {
           } catch (downloadErr) {
             console.log(downloadErr);
 
-            api.unsendMessage(loadingMsgID);
+            try {
+              api.unsendMessage(loadingMsgID);
+            } catch {}
 
             api.sendMessage(
-              "❌ সার্ভার থেকে ভিডিও আনতে সমস্যা হয়েছে",
+              "❌ ভিডিও download fail হয়েছে",
               event.threadID
             );
           }
@@ -229,7 +223,7 @@ module.exports = {
       console.log(error);
 
       api.sendMessage(
-        "❌ Unexpected Error হয়েছে",
+        "❌ Unexpected Error",
         event.threadID
       );
     }
