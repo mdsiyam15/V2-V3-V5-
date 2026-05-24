@@ -39,7 +39,7 @@ module.exports = {
       "চুদি তর মাকে": "https://files.catbox.moe/8nhe74.mp4",
 
       "আসো হাত মারি": "https://files.catbox.moe/8ioph1.mp3",
-      "🫵": "https://files.catbox.moe/p8qlso.mp4",
+      "মাদারচোদ চামচা": "https://tmpfiles.org/dl/wwwq6rpmRD0h/upload_1779657408207.mp3",
 
       "good night": "https://files.catbox.moe/i29m4q.mp3",
       "গুড নাইট": "https://files.catbox.moe/i29m4q.mp3",
