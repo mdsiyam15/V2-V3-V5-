@@ -5,164 +5,416 @@ module.exports = {
 	config: {
 		name: "admin",
 		alias: ["operator"],
-		version: "2.2",
+		version: "3.0",
 		author: "亗 SIYAM HASAN 亗",
 		countDown: 5,
 		role: 0,
-		shortDescription: { en: "Operator system" },
-		longDescription: { en: "Add/remove operator (only owner), list operator (everyone)" },
+		shortDescription: {
+			en: "Premium Operator System"
+		},
+		longDescription: {
+			en: "Add / Remove / List Operators"
+		},
 		category: "box chat",
 		guide: {
-			en: ' {pn} add \n {pn} remove \n {pn} list'
+			en:
+`{pn} add @tag/reply/uid
+{pn} remove @tag/reply/uid
+{pn} list`
 		}
 	},
 
-	langs: {
-		en: {
-			added: "✅ | Added operator for %1 users:\n%2",
-			alreadyAdmin: "\n⚠ | %1 users already operator:\n%2",
-			missingIdAdd: "⚠ | Please enter ID, tag, or reply to a message to add operator.",
-			removed: "✅ | Removed operator of %1 users:\n%2",
-			notAdmin: "⚠ | %1 users are not operator:\n%2",
-			missingIdRemove: "⚠ | Please enter ID, tag, or reply to a message to remove operator.",
-			listAdmin: "👑 | Operator list:\n%1"
-		}
-	},
+	onStart: async function ({
+		message,
+		args,
+		usersData,
+		event
+	}) {
 
-	onStart: async function ({ message, args, usersData, event, getLang }) {
+		const OWNER = [
+			"61560326905548"
+		];
 
 		const senderID = event.senderID;
 
-		// ✅ Owners
-		const OWNER = [
-			"61560326905548",
-			""
-		];
+		const isOwner =
+			OWNER.includes(senderID);
 
-		const isOwner = OWNER.includes(senderID);
+		// ======================
+		// ADD OPERATOR
+		// ======================
 
-		switch (args[0]) {
+		if (
+			args[0] == "add" ||
+			args[0] == "-a"
+		) {
 
-			case "add":
-			case "-a": {
-				if (!isOwner)
-					return message.reply("❌ | Only SIYAM can add operator.");
-
-				let uids = [];
-				if (event.type === "message_reply") {
-					uids.push(event.messageReply.senderID);
-				} else if (Object.keys(event.mentions).length > 0) {
-					uids = Object.keys(event.mentions);
-				} else if (args.slice(1).length > 0) {
-					uids = args.slice(1).filter(arg => !isNaN(arg));
-				}
-
-				if (uids.length === 0)
-					return message.reply(getLang("missingIdAdd"));
-
-				const notAdminIds = [];
-				const adminIds = [];
-
-				for (const uid of uids) {
-					if (config.adminBot.includes(uid))
-						adminIds.push(uid);
-					else
-						notAdminIds.push(uid);
-				}
-
-				config.adminBot.push(...notAdminIds);
-
-				const getNames = await Promise.all(
-					uids.map(uid => usersData.getName(uid).then(name => ({ uid, name })))
-				);
-
-				writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
-
+			if (!isOwner)
 				return message.reply(
-`╭━━━〔 ✅ SIYAM SYSTEM 〕━━━╮
-${notAdminIds.length > 0 
-? `┃ ✔ Added:\n${getNames.filter(n => notAdminIds.includes(n.uid)).map(i => `┃ • ${i.name} (${i.uid})`).join("\n")}` 
-: ""}
-${adminIds.length > 0 
-? `┃ ⚠ Already Operator:\n${adminIds.map(uid => `┃ • ${uid}`).join("\n")}` 
-: ""}
-╰━━━━━━━━━━━━━━━━━━━━╯`
+`╭〔 ❌ 𝗔𝗖𝗖𝗘𝗦𝗦 𝗗𝗘𝗡𝗜𝗘𝗗 ❌ 〕╮
+┃ Only SIYAM Owner Can
+┃ Add New Operator!
+╰━━━━━━━━━━━━━━━╯`
 				);
+
+			let uids = [];
+
+			if (
+				event.type ==
+				"message_reply"
+			) {
+
+				uids.push(
+					event.messageReply.senderID
+				);
+
 			}
 
-			case "remove":
-			case "-r": {
-				if (!isOwner)
-					return message.reply("❌ | Only SIYAM can remove operator.");
+			else if (
+				Object.keys(
+					event.mentions
+				).length > 0
+			) {
 
-				let uids = [];
-
-				if (event.type === "message_reply") {
-					uids.push(event.messageReply.senderID);
-				} else if (Object.keys(event.mentions).length > 0) {
-					uids = Object.keys(event.mentions);
-				} else if (args.slice(1).length > 0) {
-					uids = args.slice(1).filter(arg => !isNaN(arg));
-				}
-
-				if (uids.length === 0)
-					return message.reply(getLang("missingIdRemove"));
-
-				const notAdminIds = [];
-				const adminIds = [];
-
-				for (const uid of uids) {
-					if (config.adminBot.includes(uid))
-						adminIds.push(uid);
-					else
-						notAdminIds.push(uid);
-				}
-
-				for (const uid of adminIds)
-					config.adminBot.splice(config.adminBot.indexOf(uid), 1);
-
-				const getNames = await Promise.all(
-					adminIds.map(uid => usersData.getName(uid).then(name => ({ uid, name })))
+				uids = Object.keys(
+					event.mentions
 				);
 
-				writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
+			}
 
+			else if (
+				args.slice(1).length > 0
+			) {
+
+				uids = args
+					.slice(1)
+					.filter(uid => !isNaN(uid));
+
+			}
+
+			if (!uids.length)
 				return message.reply(
-`╭━━━〔 ❌ SIYAM SYSTEM 〕━━━╮
-${adminIds.length > 0 
-? `┃ ✔ Removed:\n${getNames.map(i => `┃ • ${i.name} (${i.uid})`).join("\n")}` 
-: ""}
-${notAdminIds.length > 0 
-? `┃ ⚠ Not Operator:\n${notAdminIds.map(uid => `┃ • ${uid}`).join("\n")}` 
-: ""}
-╰━━━━━━━━━━━━━━━━━━━━╯`
-				);
-			}
-
-			case "list":
-			case "-l": {
-				const getNames = await Promise.all(
-					config.adminBot.map(uid => usersData.getName(uid).then(name => ({ uid, name })))
+`╭〔 ⚠️ 𝗠𝗜𝗦𝗦𝗜𝗡𝗚 𝗨𝗦𝗘𝗥 ⚠️ 〕╮
+┃ Reply / Tag / UID Needed
+╰━━━━━━━━━━━━━━━╯`
 				);
 
-				const ownerBox =
-`╔══════〔 👑 SIYAM OWNER 〕══════╗
-┃ 🧑 NAME : SIYAM
-┃ 🆔 UID  : ${OWNER.join(", ")}
-╚══════════════════════════════╝`;
+			const addedUsers = [];
+			const alreadyUsers = [];
 
-				const operatorsBox =
-`╔════〔 ⚙️ SIYAM OPERATORS 〕════╗
-${getNames.length > 0
-	? getNames.map(i => `┃ • ${i.name} (${i.uid})`).join("\n")
-	: "┃ No Operators Found"}
-╚══════════════════════════════╝`;
+			for (const uid of uids) {
 
-				return message.reply(ownerBox + "\n\n" + operatorsBox);
+				if (
+					config.adminBot.includes(uid)
+				) {
+
+					alreadyUsers.push(uid);
+
+				} else {
+
+					config.adminBot.push(uid);
+
+					addedUsers.push(uid);
+
+				}
+
 			}
 
-			default:
-				return message.SyntaxError();
+			writeFileSync(
+				global.client.dirConfig,
+				JSON.stringify(
+					config,
+					null,
+					2
+				)
+			);
+
+			const userInfo =
+				await Promise.all(
+					uids.map(async uid => {
+
+						const name =
+							await usersData.getName(uid);
+
+						return {
+							uid,
+							name
+						};
+
+					})
+				);
+
+			let msg = "";
+
+			for (const user of userInfo) {
+
+				if (
+					addedUsers.includes(user.uid)
+				) {
+
+					msg +=
+`╭〔 👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 𝆠👑 〕╮
+┃───────────────
+┃   👑𝆠፝${user.name}-𝐇𝐀𝐒𝐀𝐍 👑
+┣━━━━━━━━━━━━━━╯
+┃
+┃ ✅ 𝐎𝐏𝐄𝐑𝐀𝐓𝐎𝐑 𝐀𝐃𝐃𝐄𝐃
+┃ ───────────────────
+┃ ⚜️ 𝐍𝐀𝐌𝐄    : ${user.name}
+┃ 🆔 𝐔𝐈𝐃      : ${user.uid}
+┃ 💠 𝐑𝐀𝐍𝐊    : Premium Operator
+┃
+┃ 🥂 𝐒𝐓𝐀𝐓𝐔𝐒 : Successfully Added
+┃ 💎 𝐀𝐂𝐂𝐄𝐒𝐒 : Full Permissions
+┃ ✨ 𝐒𝐘𝐒𝐓𝐄𝐌 : Activated Successfully
+┃
+┣━━━━━━━━━━━━━━━╯
+┃  👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 👑
+╰━━━━━━━━━━━━━━━╯
+
+`;
+
+				}
+
+				if (
+					alreadyUsers.includes(user.uid)
+				) {
+
+					msg +=
+`╭〔 ⚠️ 𝗔𝗟𝗥𝗘𝗔𝗗𝗬 𝗢𝗣𝗘𝗥𝗔𝗧𝗢𝗥 ⚠️ 〕╮
+┃ 👤 ${user.name}
+┃ 🆔 ${user.uid}
+┃ 💎 Already Premium Operator
+╰━━━━━━━━━━━━━━━╯
+
+`;
+
+				}
+
+			}
+
+			return message.reply(msg);
+
 		}
+
+		// ======================
+		// REMOVE OPERATOR
+		// ======================
+
+		if (
+			args[0] == "remove" ||
+			args[0] == "-r"
+		) {
+
+			if (!isOwner)
+				return message.reply(
+`╭〔 ❌ 𝗔𝗖𝗖𝗘𝗦𝗦 𝗗𝗘𝗡𝗜𝗘𝗗 〕╮
+┃ 𝗢𝗻𝗹𝘆 𝗦𝗜𝗬𝗔𝗠 𝗢𝘄𝗻𝗲𝗿 𝗖𝗮𝗻
+┃ 𝗥𝗲𝗺𝗼𝘃𝗲 𝗢𝗽𝗲𝗿𝗮𝘁𝗼𝗿 !
+╰━━━━━━━━━━━━━━━╯`
+				);
+
+			let uids = [];
+
+			if (
+				event.type ==
+				"message_reply"
+			) {
+
+				uids.push(
+					event.messageReply.senderID
+				);
+
+			}
+
+			else if (
+				Object.keys(
+					event.mentions
+				).length > 0
+			) {
+
+				uids = Object.keys(
+					event.mentions
+				);
+
+			}
+
+			else if (
+				args.slice(1).length > 0
+			) {
+
+				uids = args
+					.slice(1)
+					.filter(uid => !isNaN(uid));
+
+			}
+
+			if (!uids.length)
+				return message.reply(
+`╭〔 ⚠️ 𝗠𝗜𝗦𝗦𝗜𝗡𝗚 𝗨𝗦𝗘𝗥 ⚠️ 〕╮
+┃ Reply / Tag / UID Needed
+╰━━━━━━━━━━━━━━━╯`
+				);
+
+			const removedUsers = [];
+			const notUsers = [];
+
+			for (const uid of uids) {
+
+				if (
+					config.adminBot.includes(uid)
+				) {
+
+					config.adminBot.splice(
+						config.adminBot.indexOf(uid),
+						1
+					);
+
+					removedUsers.push(uid);
+
+				} else {
+
+					notUsers.push(uid);
+
+				}
+
+			}
+
+			writeFileSync(
+				global.client.dirConfig,
+				JSON.stringify(
+					config,
+					null,
+					2
+				)
+			);
+
+			const userInfo =
+				await Promise.all(
+					uids.map(async uid => {
+
+						const name =
+							await usersData.getName(uid);
+
+						return {
+							uid,
+							name
+						};
+
+					})
+				);
+
+			let msg = "";
+
+			for (const user of userInfo) {
+
+				if (
+					removedUsers.includes(user.uid)
+				) {
+
+					msg +=
+`╭〔 👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 𝆠👑 〕╮
+┃───────────────
+┃   👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+┣━━━━━━━━━━━━━━╯
+┃
+┃ ❌ 𝐎𝐏𝐄𝐑𝐀𝐓𝐎𝐑 𝐑𝐄𝐌𝐎𝐕𝐄𝐃
+┃ ───────────────────
+┃ ⚜️ 𝐍𝐀𝐌𝐄    : ${user.name}
+┃ 🆔 𝐔𝐈𝐃      : ${user.uid}
+┃ 💠 𝐑𝐀𝐍𝐊    : Premium Operator
+┃
+┃ 💔 𝐒𝐓𝐀𝐓𝐔𝐒 : Removed Successfully
+┃ 🔒 𝐀𝐂𝐂𝐄𝐒𝐒 : Permission Closed
+┃ ⚠️ 𝐒𝐘𝐒𝐓𝐄𝐌 : Operator Access Revoked
+┃
+┣━━━━━━━━━━━━━━━╯
+┃  👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 👑
+╰━━━━━━━━━━━━━━━╯
+
+`;
+
+				}
+
+				if (
+					notUsers.includes(user.uid)
+				) {
+
+					msg +=
+`╭〔 ⚠️ 𝗡𝗢𝗧 𝗢𝗣𝗘𝗥𝗔𝗧𝗢𝗥 ⚠️ 〕╮
+┃ 👤 ${user.name}
+┃ 🆔 ${user.uid}
+┃ ❌ Not In Operator List
+╰━━━━━━━━━━━━━━━╯
+
+`;
+
+				}
+
+			}
+
+			return message.reply(msg);
+
+		}
+
+		// ======================
+		// LIST OPERATOR
+		// ======================
+
+		if (
+			args[0] == "list" ||
+			args[0] == "-l"
+		) {
+
+			const users =
+				await Promise.all(
+					config.adminBot.map(
+						async uid => {
+
+							const name =
+								await usersData.getName(uid);
+
+							return {
+								uid,
+								name
+							};
+
+						}
+					)
+				);
+
+			let listText = "";
+
+			users.forEach(
+				(user, index) => {
+
+					listText +=
+`┃ ${index + 1}. 👑 ${user.name}
+┃ 🆔 ${user.uid}
+┃ ─────────────────
+`;
+
+				}
+			);
+
+			return message.reply(
+`╭〔 👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 𝆠👑 〕╮
+┃───────────────
+┃   👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+┣━━━━━━━━━━━━━━╯
+┃
+┃ ⚙️ 𝐏𝐑𝐄𝐌𝐈𝐔𝐌 𝐎𝐏𝐄𝐑𝐀𝐓𝐎𝐑 𝐋𝐈𝐒𝐓
+┃ ───────────────────
+${listText || "┃ ❌ No Operators Found"}
+┣━━━━━━━━━━━━━━━╯
+┃  👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 👑
+╰━━━━━━━━━━━━━━━╯`
+			);
+
+		}
+
+		return message.SyntaxError();
+
 	}
 };
+				
