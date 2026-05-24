@@ -2,12 +2,12 @@ module.exports = {
   config: {
     name: "allnick",
     aliases: ["an"],
-    version: "2.1",
+    version: "2.2",
     author: "亗 SIYAM HASAN 亗",
     countDown: 10,
     role: 1,
     shortDescription: {
-      en: "Change/reset nickname of all members (safe pro)"
+      en: "Change/reset nickname of all members"
     },
     category: "owner",
     guide: {
@@ -20,99 +20,289 @@ module.exports = {
     }
   },
 
-  onStart: async function ({ api, event, args, message }) {
+  onStart: async function ({
+    api,
+    event,
+    args,
+    message
+  }) {
 
     const threadID = event.threadID;
     const input = args.join(" ").trim();
 
+    // =========================
+    // NO INPUT
+    // =========================
+
     if (!input) {
-      return message.reply("⚠️ Enter nickname or 'cancel'");
+
+      return message.reply(
+`👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
+
+⚠️ নিকনেম দাও অথবা cancel লেখো ✨
+
+👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 ✨`
+      );
+
     }
 
     try {
-      const threadInfo = await api.getThreadInfo(threadID);
+
+      const threadInfo =
+        await api.getThreadInfo(threadID);
+
+      // =========================
+      // GROUP CHECK
+      // =========================
 
       if (!threadInfo.isGroup) {
-        return message.reply("❌ Only works in group");
+
+        return message.reply(
+`👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
+
+❌ এই কমান্ড শুধু গ্রুপে কাজ করে 😿
+
+👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 ✨`
+        );
+
       }
 
-      // 🔥 BOT ID
-      const botID = api.getCurrentUserID();
+      // =========================
+      // BOT ADMIN CHECK
+      // =========================
 
-      // 🔥 ADMIN CHECK
-      const isAdmin = threadInfo.adminIDs.some(a => a.id == botID);
+      const botID =
+        api.getCurrentUserID();
+
+      const isAdmin =
+        threadInfo.adminIDs.some(
+          item => item.id == botID
+        );
 
       if (!isAdmin) {
+
         return message.reply(
-          "⛔ Bot is NOT admin!\n👉 Please make bot admin first to use this command."
+`👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
+
+⛔ বট এডমিন না 😾
+✨ আগে বটকে এডমিন বানাও
+
+👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 ✨`
         );
+
       }
 
-      const members = threadInfo.participantIDs;
+      const members =
+        threadInfo.participantIDs;
 
-      const { delayPerBatch, batchSize, retryLimit } = module.exports.config.envConfig;
+      const {
+        delayPerBatch,
+        batchSize,
+        retryLimit
+      } = module.exports.config.envConfig;
 
-      const chunkArray = (arr, size) => {
-        const res = [];
-        for (let i = 0; i < arr.length; i += size) {
-          res.push(arr.slice(i, i + size));
+      // =========================
+      // START MESSAGE
+      // =========================
+
+      await message.reply(
+`👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
+
+🚀 সব মেম্বারের নিকনেম চেঞ্জ হচ্ছে... 💫
+
+👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 ✨`
+      );
+
+      // =========================
+      // ARRAY CHUNK
+      // =========================
+
+      const chunkArray = (
+        array,
+        size
+      ) => {
+
+        const result = [];
+
+        for (
+          let i = 0;
+          i < array.length;
+          i += size
+        ) {
+
+          result.push(
+            array.slice(i, i + size)
+          );
+
         }
-        return res;
+
+        return result;
+
       };
 
-      await message.reply(`🚀 Processing ${members.length} members...`);
-
-      const batches = chunkArray(members, batchSize);
+      const batches =
+        chunkArray(
+          members,
+          batchSize
+        );
 
       let failed = [];
       let done = 0;
 
+      // =========================
+      // PROCESS SYSTEM
+      // =========================
+
       for (const batch of batches) {
 
         for (const userID of batch) {
+
           let success = false;
 
-          for (let i = 0; i <= retryLimit; i++) {
+          for (
+            let retry = 0;
+            retry <= retryLimit;
+            retry++
+          ) {
+
             try {
-              if (input.toLowerCase() === "cancel") {
-                await api.changeNickname("", threadID, userID);
-              } else {
-                await api.changeNickname(input, threadID, userID);
+
+              if (
+                input.toLowerCase() ==
+                "cancel"
+              ) {
+
+                await api.changeNickname(
+                  "",
+                  threadID,
+                  userID
+                );
+
+              }
+
+              else {
+
+                await api.changeNickname(
+                  input,
+                  threadID,
+                  userID
+                );
+
               }
 
               success = true;
               break;
 
-            } catch (err) {
-              if (i === retryLimit) {
-                failed.push(userID);
-              }
             }
+
+            catch {
+
+              if (
+                retry === retryLimit
+              ) {
+
+                failed.push(userID);
+
+              }
+
+            }
+
           }
 
-          done++;
+          if (success)
+            done++;
+
         }
 
-        const percent = Math.floor((done / members.length) * 100);
-        await message.reply(`📊 Progress: ${percent}%`);
+        // =========================
+        // PROGRESS
+        // =========================
 
-        await new Promise(res =>
-          setTimeout(res, delayPerBatch)
+        const percent =
+          Math.floor(
+            (done / members.length) * 100
+          );
+
+        await message.reply(
+`👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
+
+📊 কাজ চলছে... ${percent}% ✨
+
+👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 ✨`
         );
+
+        await new Promise(resolve =>
+          setTimeout(
+            resolve,
+            delayPerBatch
+          )
+        );
+
       }
 
-      if (failed.length === 0) {
-        if (input.toLowerCase() === "cancel") {
-          message.reply("🔄 All nicknames removed successfully");
-        } else {
-          message.reply("✅ All nicknames updated successfully");
+      // =========================
+      // FINAL RESULT
+      // =========================
+
+      if (failed.length == 0) {
+
+        if (
+          input.toLowerCase() ==
+          "cancel"
+        ) {
+
+          return message.reply(
+`👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
+
+🔄 সব নিকনেম রিমুভ করা হয়েছে 💫
+
+👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 ✨`
+          );
+
         }
-      } else {
-        message.reply(`⚠️ Failed: ${failed.length} users`);
+
+        else {
+
+          return message.reply(
+`👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
+
+✅ সব নিকনেম সফলভাবে চেঞ্জ হয়েছে ✨
+
+👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 ✨`
+          );
+
+        }
+
       }
 
-    } catch (err) {
-      message.reply("❌ Error: " + err.message);
+      else {
+
+        return message.reply(
+`👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
+
+⚠️ ${failed.length} জনের নিকনেম চেঞ্জ হয় নাই 😿
+
+👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 ✨`
+        );
+
+      }
+
     }
+
+    catch (err) {
+
+      console.log(err);
+
+      return message.reply(
+`👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
+
+❌ সিস্টেম এরর হয়েছে 😿
+
+👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 ✨`
+      );
+
+    }
+
   }
+
 };
