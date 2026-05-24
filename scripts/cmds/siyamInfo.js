@@ -31,9 +31,14 @@ module.exports = {
       "siyam vai"
     ];
 
-    const body = event.body.toLowerCase();
+    const body = event.body.trim();
 
-    if (!triggerWords.some(word => body.includes(word.toLowerCase()))) return;
+    // শুধু ট্রিগার একা থাকলে কাজ করবে
+    const matched = triggerWords.some(
+      word => body.toLowerCase() === word.toLowerCase()
+    );
+
+    if (!matched) return;
 
     api.setMessageReaction("✡️", event.messageID, () => {}, true);
 
