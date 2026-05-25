@@ -1,16 +1,106 @@
+// 😼 Author: 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 😼
+// ⚠️ নাম চেঞ্জ করলে ফাইল নষ্ট হয়ে যাবে ভাই 😾
+
+const AUTHOR_LOCK = "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍";
+const VISIBLE_AUTHOR = "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍";
+
+if (VISIBLE_AUTHOR !== AUTHOR_LOCK) {
+  throw new Error("🚫 AUTHOR LOCK BROKEN!");
+}
+
+if (!global.antibadword2Data) {
+  global.antibadword2Data = {};
+}
+
 module.exports = {
   config: {
     name: "antibadword2",
-    version: "4.1",
-    author: "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
-    role: 0,
-    category: "group"
+    version: "5.0",
+    author: AUTHOR_LOCK,
+    role: 1,
+    category: "group",
+    shortDescription: {
+      en: "Anti badword system"
+    }
   },
 
-  onStart: async function () {},
+  onStart: async function ({ api, event, args }) {
+    try {
+      const tid = event.threadID;
+
+      if (!global.antibadword2Data[tid]) {
+        global.antibadword2Data[tid] = {
+          enabled: false,
+          warnedUsers: {},
+          stoppedUsers: {}
+        };
+      }
+
+      const input = (args[0] || "").toLowerCase();
+
+      if (input === "on") {
+        global.antibadword2Data[tid].enabled = true;
+
+        return api.sendMessage(
+          `👑 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+
+✅ ANTI BADWORD SYSTEM ENABLED ✅
+
+🛡️ গ্রুপে এখন খারাপ ভাষা চেক করা হবে 🔐।`,
+          tid
+        );
+      }
+
+      if (input === "off") {
+        global.antibadword2Data[tid].enabled = false;
+
+        return api.sendMessage(
+          `👑 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+
+❌ ANTI BADWORD SYSTEM DISABLED ❌
+
+🔕 এখন আর খারাপ ভাষার Warning দিবে না 🛡️।`,
+          tid
+        );
+      }
+
+      return api.sendMessage(
+        `⚙️ ব্যবহার:
+
+fuck on
+fuck off`,
+        tid
+      );
+
+    } catch (e) {
+      console.log(e);
+    }
+  },
 
   onChat: async function ({ api, event }) {
     try {
+
+      const tid = event.threadID;
+      const uid = event.senderID;
+
+      if (!global.antibadword2Data)
+        global.antibadword2Data = {};
+
+      if (!global.antibadword2Data[tid]) {
+        global.antibadword2Data[tid] = {
+          enabled: false,
+          warnedUsers: {},
+          stoppedUsers: {}
+        };
+      }
+
+      const data = global.antibadword2Data[tid];
+
+      // ❌ SYSTEM OFF
+      if (!data.enabled) return;
+
+      // ❌ STOPPED USER
+      if (data.stoppedUsers[uid]) return;
 
       const badWords = [
         "fuck", "bitch", "sex", "shit", "asshole",
@@ -24,10 +114,6 @@ module.exports = {
 
       if (!body) return;
 
-      const uid = event.senderID;
-      const tid = event.threadID;
-
-      // ❌ BAD WORD CHECK
       const match = badWords.some(word => body.includes(word));
 
       if (!match) return;
@@ -51,10 +137,8 @@ module.exports = {
 
         const threadInfo = await api.getThreadInfo(tid);
 
-        // 👑 GROUP ADMINS
         const adminIDs = threadInfo.adminIDs.map(a => a.id);
 
-        // 🤖 BOT ADMINS
         const botAdmins =
           global.GoatBot.config.adminBot || [];
 
@@ -72,25 +156,24 @@ module.exports = {
       // =========================
       // ⚠️ WARNING STORAGE
       // =========================
-      if (!global.warnCount)
-        global.warnCount = {};
+      if (!data.warnedUsers[uid]) {
+        data.warnedUsers[uid] = 0;
+      }
 
-      if (!global.warnCount[uid])
-        global.warnCount[uid] = 0;
+      data.warnedUsers[uid]++;
 
-      global.warnCount[uid]++;
-
-      const count = global.warnCount[uid];
+      const count = data.warnedUsers[uid];
 
       // =================================================
-      // 👑 GROUP ADMIN / BOT ADMIN SYSTEM
+      // 👑 ADMIN SYSTEM
       // =================================================
       if (isAdmin) {
 
-        // 👑 শুধু ৩ বার নোট দিবে
+        // 👑 ৩ বার পর্যন্ত নোটিশ
         if (count <= 3) {
 
           return api.sendMessage(
+
 `👑 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 
 👑 ADMIN NOTICE 👑
@@ -108,7 +191,8 @@ module.exports = {
           );
         }
 
-        // 👑 ৩ বার পরে কিছু করবে না
+        // 👑 ৩ বারের পরে আর কিছু বলবে না
+        data.stoppedUsers[uid] = true;
         return;
       }
 
@@ -120,6 +204,7 @@ module.exports = {
       if (count < 3) {
 
         return api.sendMessage(
+
 `👑 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 
 ⚠️ WARNING ${count}/3 ⚠️
@@ -137,6 +222,7 @@ module.exports = {
 
       // 🚫 FINAL REMOVE
       api.sendMessage(
+
 `👑 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 
 🚫 AUTO REMOVE SYSTEM 🚫
@@ -153,11 +239,12 @@ module.exports = {
             await api.removeUserFromGroup(uid, tid);
 
             // 🗑️ RESET WARNING
-            delete global.warnCount[uid];
+            delete data.warnedUsers[uid];
 
           } catch (e) {
 
             api.sendMessage(
+
 `👑 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 
 ❌ এডমিন ভাইয়া 🫶অথবা আপু 🙌 🪬আগে আমাকে মানে🪤 বট কে 🤷 গ্রুপ এডমিন দাও🛡️🔮.`,
