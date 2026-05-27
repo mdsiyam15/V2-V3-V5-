@@ -33,12 +33,12 @@ module.exports = {
       const loading = await message.reply(`
 ╭━〔 ⚡ SYSTEM ⚡ 〕━╮
 ┃ ⏳ আরে মামা দাঁড়াও দিতেছি...
-╰━━━━━━━━━━━━━━━━━━╯
+╰━━━━━━━━━━━━━━━━━╯
 `);
 
       // 🎥 Google Drive Direct Video Link
       const videoUrl =
-        "https://tmpfiles.org/dl/wzwLlgEiEgt1/upload_1779384931116.mp4";
+        "https://files.catbox.moe/lakl90.mp4";
 
       // download video
       const response = await axios.get(videoUrl, {
@@ -49,7 +49,7 @@ module.exports = {
 
       // ✅ Send video + text together
       await message.reply({
-        body: "এই নাও মামা বসের ভয়েস ভিডিও 😎🔥",
+        body: "এই নাও মামা ✋ হাত মারো🥵",
         attachment: fs.createReadStream(filePath)
       });
 
