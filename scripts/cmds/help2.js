@@ -1,159 +1,139 @@
-const axios = require("axios");
+// 🙂 নাম পরিবর্তন করলে ফাইল নষ্ট হতে পারে
+
+const a1 = "𝆠፝";
+const a2 = "𝐒𝐈";
+const a3 = "𝐘𝐀𝐌";
+const a4 = "-𝐇𝐀";
+const a5 = "𝐒𝐀𝐍";
+
+const hiddenOwner = [a1, a2, a3, a4, a5].join("");
+
+if (hiddenOwner !== "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍") {
+throw new Error("Author Lock Changed!");
+}
 
 module.exports = {
-  config: {
-    name: "help2",
-    version: "3.0.0",
-    author: "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
-    countDown: 5,
-    role: 0,
-    shortDescription: {
-      en: "Show all commands"
-    },
-    longDescription: {
-      en: "Display command list and usage"
-    },
-    category: "info",
-    guide: {
-      en: "{pn}help2 / {pn}help2 <command>"
-    }
-  },
+config: {
+name: "help2",
+version: "2.0.0",
+author: hiddenOwner,
+role: 0,
 
-  onStart: async function ({ message, args, event, role }) {
-    const prefix = global.GoatBot.config.prefix;
-    const groupName = event.threadName || "UNKNOWN GROUP";
+shortDescription: {  
+		en: "Premium Help Menu"  
+	},  
 
-    const mediaLinks = [
-      "https://files.catbox.moe/41hfau.jpg",
-      "https://files.catbox.moe/81i9c7.jpg",
-      "https://files.catbox.moe/3hhite.jpg"
-    ];
+	longDescription: {  
+		en: "Premium Styled Help Menu"  
+	},  
 
-    // 🔁 IMAGE ROTATION SYSTEM
-    global.help2Index = global.help2Index || 0;
-    const currentIndex = global.help2Index;
-    global.help2Index = (global.help2Index + 1) % mediaLinks.length;
+	category: "system",  
 
-    const { commands, aliases } = global.GoatBot;
+	guide: {  
+		en: "{pn}"  
+	}  
+},  
 
-    // 🔥 MAIN MENU
-    if (!args[0]) {
-      let msg = `
-✡️┏━★━━━━━━━━★━┓✡️
+onStart: async function ({ api, event, prefix }) {  
 
-👑 ╭─❖ GROUP ❖─╮
-   ╰➤ 『${groupName}』
+	try {  
 
-⚙️ ╭─❖ PREFIX ❖─╮
-   ╰➤ 『${prefix}』
+		// 🙂 সব কমান্ড অটোমেটিক লোড  
+		const commandsMap = global.GoatBot?.commands || new Map();  
 
-🔮 ╭─❖ COMMAND ❖─╮
-   ╰➤ 『${prefix}help2』
+		// 🙂 কমান্ড নাম নেওয়া  
+		const allCommands = Array.from(commandsMap.keys())  
+			.filter(cmd => !cmd.startsWith("_"))  
+			.sort((a, b) => a.localeCompare(b));  
 
-✡️┗━★━━━━━━━━★━┛✡️
+		// 🙂 মোট কমান্ড  
+		const totalCommands = allCommands.length;  
+
+		// 🙂 রিয়েল Prefix  
+		const realPrefix =  
+			prefix ||  
+			global.GoatBot?.config?.prefix ||  
+			".";  
+
+		// 🙂 কমান্ড লিস্ট নাম্বারসহ  
+		const cmdList = allCommands.length > 0  
+			? allCommands  
+				.map((cmd, index) =>  
+					`➥ 👑 ${index + 1}. ${realPrefix}${cmd}`  
+				)  
+				.join("\n")  
+			: "❌ NO COMMAND FOUND";  
+
+		// 🙂 Broken File Detect  
+		let brokenFiles = [];  
+
+		if (global.GoatBot?.onLoadError) {  
+			brokenFiles = Object.keys(global.GoatBot.onLoadError);  
+		}  
+
+		// 🙂 Broken File Count  
+		const totalBroken = brokenFiles.length;  
+
+		// 🙂 Broken File List  
+		const brokenList = totalBroken > 0  
+			? brokenFiles  
+				.map((file, index) =>  
+					`❌ ${index + 1}. ${file}`  
+				)  
+				.join("\n")  
+			: "✅ NO BROKEN FILE";  
+
+		// 🙂 Final Message  
+		const msg = `
+
+╔════════════════╗
+👑 𝗦𝗜𝗬𝗔𝗠 𝗛𝗘𝗟𝗣 👑
+╚════════════════╝
+
+💠 𝗨𝗡𝗜𝗩𝗘𝗥𝗦𝗔𝗟 𝗛𝗘𝗟𝗣
+⚡ 𝗦𝗣𝗘𝗘𝗗 ➤ 0.01MS
+🔥 𝗠𝗢𝗗𝗘 ➤ PREMIUM
+🤖 𝗦𝗧𝗔𝗧𝗨𝗦 ➤ ONLINE
+
+📌 𝗣𝗥𝗘𝗙𝗜𝗫 ➤ ${realPrefix}
+
+╭〔 👑 COMMAND LIST 👑 ╮
+
+${cmdList}
+
+╰━━━━━━━━━━━━━━━━╯
+
+╭〔 ⚠️ BROKEN FILE ⚠️ ╮
+
+${brokenList}
+
+╰━━━━━━━━━━━━━━━╯
+
+🌐 𝗙𝗔𝗖𝗘𝗕𝗢𝗢𝗞 🔗
+https://www.facebook.com/profile.php?id=61589656899295
+
+📦 𝗧𝗢𝗧𝗔𝗟 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 ➤ ${totalCommands}
+⚠️ 𝗕𝗥𝗢𝗞𝗘𝗡 𝗙𝗜𝗟𝗘 ➤ ${totalBroken}
+
+👑 𝗢𝗪𝗡𝗘𝗥 ➤ ${hiddenOwner}
 `;
 
-      const categories = {};
+return api.sendMessage(  
+			msg,  
+			event.threadID,  
+			event.messageID  
+		);  
 
-      for (const [name, cmd] of commands) {
-        if (!cmd.config || cmd.config.role > role) continue;
+	} catch (e) {  
 
-        const category = (cmd.config.category || "OTHER").toUpperCase();
-        if (!categories[category]) categories[category] = [];
+		console.log(e);  
 
-        categories[category].push(name);
-      }
+		return api.sendMessage(  
+			"❌ | Error loading help menu",  
+			event.threadID,  
+			event.messageID  
+		);  
+	}  
+}
 
-      for (const cat of Object.keys(categories).sort()) {
-        msg += `
-╭━━━❖ 『 ${cat} 』 ❖━━━╮
-`;
-        for (const name of categories[cat].sort()) {
-          msg += `┃ ✡️ ${name}\n`;
-        }
-        msg += `╰━━━━━━━━━━━━━━━╯\n`;
-      }
-
-      const total = Object.values(categories).reduce((a, b) => a + b.length, 0);
-
-      msg += `
-✡️┏━★━━━━━━━━★━┓✡️
-
-📊 ╭─❖ TOTAL COMMAND ❖─╮
-   ╰➤ 『${total}』
-
-📖 ╭─❖ HOW TO USE ❖─╮
-   ╰➤ 『${prefix}help2 <command>』
-
-🌐 ╭─❖ FACEBOOK ❖─╮
-   ╰➤ 『https://www.facebook.com/share/18K1jti9xb/』
-
-👑 ╭─❖ OWNER ❖─╮
-   ╰➤『𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍』
-
-┗━★━━━━━━━━★━┛
-`;
-
-      try {
-        const randomLink = mediaLinks[currentIndex];
-        const stream = await axios.get(randomLink, { responseType: "stream" }).then(res => res.data);
-
-        return message.reply({
-          body: msg,
-          attachment: stream
-        });
-
-      } catch (e) {
-        return message.reply(msg);
-      }
-    }
-
-    // 🔍 COMMAND INFO
-    const cmdName = args[0].toLowerCase();
-    const cmd = commands.get(cmdName) || commands.get(aliases.get(cmdName));
-
-    if (!cmd) {
-      return message.reply(`❌ Command "${cmdName}" not found`);
-    }
-
-    const cfg = cmd.config;
-
-    const roleText =
-      cfg.role == 0 ? "All Users" :
-      cfg.role == 1 ? "Group Admin" :
-      cfg.role == 2 ? "Bot Admin" : "Unknown";
-
-    const usage = (cfg.guide?.en || "No guide")
-      .replace(/{pn}/g, prefix)
-      .replace(/{n}/g, cfg.name);
-
-    const info = `
-✡️┏━★━━━━━━━━★━┓✡️
-
-👑 ╭─❖ COMMAND ❖─╮
-   ╰➤ 『${cfg.name}』
-
-📂 ╭─❖ CATEGORY ❖─╮
-   ╰➤ 『${cfg.category}』
-
-📜 ╭─❖ DESCRIPTION ❖─╮
-   ╰➤ 『${cfg.longDescription?.en || "No description"}』
-
-⚙️ ╭─❖ GUIDE ❖─╮
-   ╰➤ 『${usage}』
-
-🔐 ╭─❖ PERMISSION ❖─╮
-   ╰➤ 『${roleText}』
-
-🔄 ╭─❖ VERSION ❖─╮
-   ╰➤ 『${cfg.version}』
-
-👑 ╭─❖ AUTHOR ❖─╮
-   ╰➤ 『${cfg.author}』
-
-┗━★━━━━━━━━★━┛
-`;
-
-    return message.reply(info);
-  }
 };
