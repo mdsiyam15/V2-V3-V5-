@@ -86,9 +86,9 @@ onStart: async function ({ api, event, prefix }) {
 		// 🙂 Final Message  
 		const msg = `
 
-╔════════════════╗
-👑 𝗦𝗜𝗬𝗔𝗠 𝗛𝗘𝗟𝗣 👑
-╚════════════════╝
+╔══════════════╗
+ 👑 𝗦𝗜𝗬𝗔𝗠 𝗛𝗘𝗟𝗣 👑
+╚══════════════╝
 
 💠 𝗨𝗡𝗜𝗩𝗘𝗥𝗦𝗔𝗟 𝗛𝗘𝗟𝗣
 ⚡ 𝗦𝗣𝗘𝗘𝗗 ➤ 0.01MS
@@ -97,7 +97,7 @@ onStart: async function ({ api, event, prefix }) {
 
 📌 𝗣𝗥𝗘𝗙𝗜𝗫 ➤ ${realPrefix}
 
-╭〔 👑 COMMAND LIST 👑 ╮
+ ╭👑COMMAND LIST👑╮
 
 ${cmdList}
 
