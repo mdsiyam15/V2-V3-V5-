@@ -1,4 +1,4 @@
-,cmd install shell.js const { exec } = require("child_process");
+const { exec } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
@@ -23,10 +23,11 @@ function getOwnerUIDs() {
       ...(config.OWNER || []),
       ...(config.ADMINBOT || [])
     ])].map(String);
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
 
-// ✅ মূল লজিক আলাদা করা হলো (reuse করার জন্য)
 async function handler({ api, event, args }) {
   const { threadID, messageID, senderID } = event;
 
@@ -40,44 +41,59 @@ async function handler({ api, event, args }) {
   const command = args.join(" ").trim();
   if (!command) {
     return api.sendMessage(
-`┏━━━━━━━━━━━━━━━━━━━━━┓
-┃   💻 SHELL COMMAND    ┃
-┗━━━━━━━━━━━━━━━━━━━━━┛
+`┏ 👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑 ┛
 
-📌 ব্যবহার: .shell [command]
+📌 𝗨𝗦𝗔𝗚𝗘:
+• .𝘀𝗵𝗲𝗹𝗹 [𝗰𝗼𝗺𝗺𝗮𝗻𝗱]
 
-উদাহরণ:
-  .shell ls
-  .shell node -v
-  .shell cat Joy.json
-  .shell pm2 list`, threadID, messageID);
+💡 𝗘𝗫𝗔𝗠𝗣𝗟𝗘:
+• ⚡ .𝘀𝗵𝗲𝗹𝗹 𝗹𝘀
+• 🔧 .𝘀𝗵𝗲𝗹𝗹 𝗻𝗼𝗱𝗲 -𝘃
+• 📊 .𝘀𝗵𝗲𝗹𝗹 𝗽𝗺𝟮 𝗹𝗶𝘀𝘁
+• 📁 .𝘀𝗵𝗲𝗹𝗹 𝗰𝗮𝘁 𝗝𝗼𝘆.𝗷𝘀𝗼𝗻
+
+━━━━━━━━━━━━━━━━━`, 
+threadID, messageID
+    );
   }
 
-  const processing = await api.sendMessage(`⏳ চালু হচ্ছে...\n$ ${command}`, threadID, messageID);
+  const processing = await api.sendMessage(
+`⏳ 𝗘𝗫𝗘𝗖𝗨𝗧𝗜𝗡𝗚...
+$ ${command}`,
+threadID,
+messageID
+  );
 
   exec(command, { timeout: 30000, maxBuffer: 1024 * 1024 }, (err, stdout, stderr) => {
+
     const output = (stdout || "") + (stderr || "");
     const trimmed = output.trim();
 
     let result = trimmed.length > 1800
-      ? trimmed.substring(0, 1800) + "\n\n... [output কেটে দেওয়া হয়েছে]"
-      : trimmed || "(কোনো output নেই)";
+      ? trimmed.substring(0, 1800) + "\n\n... [OUTPUT TRUNCATED]"
+      : trimmed || "(NO OUTPUT)";
 
-    const status = err && !stdout ? `❌ Error (code: ${err.code || "unknown"})` : "✅ সম্পন্ন";
+    const status =
+      err && !stdout
+        ? `❌ 𝗘𝗥𝗥𝗢𝗥 (code: ${err.code || "unknown"})`
+        : "✅ 𝗖𝗢𝗠𝗣𝗟𝗘𝗧𝗘";
 
     api.editMessage(
-`┏━━━━━━━━━━━━━━━━━━━━━┓
-┃   💻 SHELL OUTPUT     ┃
-┗━━━━━━━━━━━━━━━━━━━━━┛
-
+`┏ 👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
+💻 𝗖𝗠𝗗:
 $ ${command}
-━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━
+📤 𝗢𝗨𝗧𝗣𝗨𝗧:
 ${result}
-━━━━━━━━━━━━━━━━━━━━━━━
-${status}`, processing.messageID, threadID);
+━━━━━━━━━━━━━━━━━
+⚡ 𝗦𝗧𝗔𝗧𝗨𝗦:
+${status}
+`,
+      processing.messageID,
+      threadID
+    );
   });
-};
+}
 
-// ✅ framework compatibility fix
 module.exports.onStart = handler;
 module.exports.run = handler;
