@@ -1,78 +1,134 @@
-const A = require("axios");
-const B = require("fs-extra");
-const C = require("path");
-const S = require("yt-search");
+const yts = require("yt-search");
+const fs = require("fs-extra");
+const path = require("path");
+const { downloadVideo } = require("joy-video-downloader");
 
-const LOCKED_AUTHOR = "Farhan-Khan";
-
-// 🔒 AUTHOR CHECK FUNCTION
-function checkAuthor(config) {
-  if (!config || config.author !== LOCKED_AUTHOR) {
-    throw new Error("🚫 Author tampered! This command is disabled.");
+// 🔐 SAFE WRAPPER (prevents clearLine / stderr crash issues)
+function safeRun(fn) {
+  try {
+    return fn();
+  } catch (e) {
+    return null;
   }
 }
 
-const p = C.join(__dirname, "cache", `${Date.now()}.mp3`);
-
-const nix = "https://raw.githubusercontent.com/aryannix/stuffs/master/raw/apis.json";
-
 module.exports = {
   config: {
-    name: "sing",
-    aliases: ["song", "music", "play"],
-    version: "0.0.1",
-    author: "Farhan-Khan",
-    countDown: 10,
+    name: "song",
+    version: "9.2.0",
+    author: "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",
     role: 0,
-    category: "media"
+    description: "Stable YouTube music downloader",
+    prefix: true,
+    category: "media",
+    usages: "song <name/link>",
+    cooldowns: 5
   },
 
   onStart: async function ({ api, event, args }) {
-    const { threadID: t, messageID: m } = event;
-    const q = args.join(" ");
-    if (!q) return api.sendMessage("❌ Please provide a song name or link.", t, m);
+    const { threadID, messageID } = event;
 
-    // 🔒 AUTHOR LOCK ACTIVE
-    checkAuthor(module.exports.config);
+    if (!args.length) {
+      return api.sendMessage(
+        "⚠️ গান নাম বা YouTube link দিন",
+        threadID,
+        messageID
+      );
+    }
 
-    api.setMessageReaction("⏳", m, () => {}, true);
+    let query = args.join(" ");
+    let ytLink = query;
 
     try {
-      const D = await A.get(nix);
-      const E = D.data.api;
+      // 🔍 YouTube search
+      if (!ytLink.includes("youtu")) {
+        const search = await yts(query);
 
-      let u = q;
-      if (!q.startsWith("http")) {
-        const r = await S(q);
-        const v = r.videos[0];
-        if (!v) throw new Error("Error ytdl issue 🧘");
-        u = v.url;
+        if (!search?.videos?.length) {
+          return api.sendMessage(
+            "❌ গান পাওয়া যায়নি",
+            threadID,
+            messageID
+          );
+        }
+
+        ytLink = search.videos[0].url;
       }
 
-      const F = await A.get(`${E}/ytdl`, {
-        params: { url: u, type: "audio" }
-      });
+      // ⏳ loading
+      api.setMessageReaction("⏳", messageID, () => {}, true);
 
-      if (!F.data.status || !F.data.downloadUrl) throw new Error("API Error");
+      const loading = await api.sendMessage(
+        "🎧 Downloading...",
+        threadID
+      );
 
-      const DL = F.data.downloadUrl;
-      const title = F.data.title || "Song";
+      // 📁 cache folder safe create
+      const cacheDir = path.join(__dirname, "cache");
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
 
-      const res = await A.get(DL, { responseType: "arraybuffer" });
-      await B.outputFile(p, Buffer.from(res.data));
+      const filePath = path.join(
+        cacheDir,
+        `song_${Date.now()}.mp3`
+      );
 
-      api.setMessageReaction("✅", m, () => {}, true);
+      // 🎵 download (safe execution)
+      const data = await downloadVideo(ytLink, filePath);
 
-      return api.sendMessage({
-        body: `🎵 Title: ${title}`,
-        attachment: B.createReadStream(p)
-      }, t, () => {
-        if (B.existsSync(p)) B.unlinkSync(p);
-      }, m);
+      if (!data || !data.filePath) {
+        api.unsendMessage(loading.messageID);
+        api.setMessageReaction("❌", messageID, () => {}, true);
 
-    } catch (e) {
-      api.setMessageReaction("❌", m, () => {}, true);
-      return api.sendMessage(`❌ Error: ${e.message}`, t, m);
+        return api.sendMessage(
+          "❌ গান ডাউনলোড ব্যর্থ হয়েছে",
+          threadID,
+          messageID
+        );
+      }
+
+      const title = data.title || "Unknown Song";
+      const savedPath = data.filePath;
+
+      api.unsendMessage(loading.messageID);
+      api.setMessageReaction("✅", messageID, () => {}, true);
+
+      // 🎧 send song
+      return api.sendMessage(
+        {
+          body:
+`🎵 SONG DOWNLOADED
+
+📌 Title: ${title}
+🔗 Link: ${ytLink}
+👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑`,
+
+          attachment: fs.createReadStream(savedPath)
+        },
+        threadID,
+        () => {
+          safeRun(() => {
+            if (fs.existsSync(savedPath)) fs.unlinkSync(savedPath);
+          });
+        },
+        messageID
+      );
+
+    } catch (err) {
+      console.log("Song Error:", err);
+
+      api.setMessageReaction("❌", messageID, () => {}, true);
+
+      return api.sendMessage(
+        "❌সমস্যা হয়েছে 🚨বস সিয়াম এর ইনবক্সে নক দাও🌚 https://www.facebook.com/profile.php?id=100037154624637",
+        threadID,
+        messageID
+      );
     }
+  },
+
+  run: async function (data) {
+    return module.exports.onStart(data);
   }
 };
