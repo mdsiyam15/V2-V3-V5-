@@ -32,7 +32,7 @@ module.exports = {
 	}) {
 
 		const OWNER = [
-			"61560326905548"
+			"100037154624637"
 		];
 
 		const senderID = event.senderID;
