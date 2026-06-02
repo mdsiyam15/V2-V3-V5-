@@ -14,7 +14,7 @@
   "language": "en",
   "notesLanguage": "change language using ISO 639-1 code",
 
-  "nickNameBot": "─꯭‎— [,] 👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 ✨:)>𝟑",
+  "nickNameBot": "─꯭‎— [,] 🛸 𝆠፝𝐍𝐈𝐉𝐇𝐔𝐌-𝐂𝐇𝐀𝐓-𝐁𝐎𝐓 🛸:)>𝟑",
 
   "prefix": ",",
 
@@ -25,16 +25,14 @@
 
   "adminBot": [
     "100037154624637",
-    "100000000000000"
+    "61590753290696"
   ],
-  "adminBotComment": "উপরের ইউ আইডি চেঞ্জ করলে বট বন্ধ হয়ে যাবে⚠️",
 
   "security": {
     "enableOwnerLock": true,
     "ownerUID": "100037154624637",
-    "ownerUIDComment": "উপরের ইউ আইডি চেঞ্জ করলে বট বন্ধ হয়ে যাবে⚠️",
     "ownerIndex": 0,
-    "notes": "Do not change adminBot[0] or ownerUID, bot will stop if modified"
+    "notes": "Do not change adminBot[0], bot will stop if modified"
   },
 
   "reactUnsend": {
@@ -45,10 +43,10 @@
   },
 
   "whiteListMode": {
-    "enable": true,
+    "enable": false,
     "whiteListIds": [
       "100037154624637",
-      "61589656899295"
+      "61590753290696"
     ],
     "notes": "If enabled, only IDs in whiteListIds can use the bot."
   },
@@ -182,4 +180,4 @@
     "autoReconnect": false,
     "notes": "Docs: https://github.com/ntkhang03/fb-chat-api/blob/master/DOCS.md#apisetoptionsoptions"
   }
-}
+  }
