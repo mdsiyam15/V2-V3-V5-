@@ -177,15 +177,14 @@ module.exports = {
       await api.sendMessage(
         {
           body:
-`╭━━━〔 ${botName} 〕━━━╮
+`╭━〔 ${botName} 〕━╮
 
 ⏰ 𝗥𝗘𝗔𝗟 𝗧𝗜𝗠𝗘
 ├‣ ${time}
-
 📅 𝗥𝗘𝗔𝗟 𝗗𝗔𝗧𝗘
 ├‣ ${date}
-
 🤖 𝗕𝗢𝗧 𝗦𝗧𝗔𝗧𝗨𝗦
+
 ├‣ Total Commands : ${totalCommands}
 ├‣ Bot Prefix : ${prefix}
 ├‣ Uptime : ${days}D ${hours}H ${minutes}M ${seconds}S
