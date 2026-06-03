@@ -1,6 +1,6 @@
 module.exports = {
   config: {
-    name: "@everyone",
+    name: "everyone",
     aliases: ["all", "everyone"],
     category: "GROUP",
     role: 0,
