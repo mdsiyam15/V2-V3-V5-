@@ -1,284 +1,100 @@
-// ⚠️ নাম পরিবর্তন করলে ফাইল কাজ নাও করতে পারে
-// 👑 Author: 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍
-
-const os = require("os");
 const { getStreamsFromAttachment } = global.utils;
 
-// 🔐 SECRET LOCK SYSTEM
-const _a = "s";
-const _b = "s";
-const _c = "";
-const _d = "s";
-
-// 🔒 Hidden Secret Check
-const secretKey = `${_c}${_b}`;
-
-if (
-	(secretKey.split("").reverse().join("") !==
-	[_a].join(""))
-) {
-
-console.log("❌ Invalid Secret Key!");  
-
-module.exports = {  
-	config: {  
-		name: "notification",  
-		version: "5.0",  
-		author: "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍"  
-	},  
-
-	onStart: async function ({ message }) {  
-		return message.reply(
-
-`❌ সিক্রেট কী ভুল!
-
-🔐 মাদারচোদ সিক্রেট কি বসা  তারপর আবার ট্রাই কর ফাইল কি তোর জন্য বানাইছে তোর বাপ সিয়াম 🙄 `
-);
-}
-};
-
-return;
-
-}
-
 module.exports = {
+	config: {
+		name: "notification",
+		aliases: ["notify", "noti"],
+		version: "1.7",
+		author: "NTKhang",
+		countDown: 5,
+		role: 2,
+		description: {
+			vi: "Gửi thông báo từ admin đến all box",
+			en: "Send notification from admin to all box"
+		},
+		category: "owner",
+		guide: {
+			en: "{pn} <tin nhắn>"
+		},
+		envConfig: {
+			delayPerGroup: 250
+		}
+	},
 
-config: {  
-	name: "notification",  
-	aliases: ["notify", "noti"],  
+	langs: {
+		vi: {
+			missingMessage: "Vui lòng nhập tin nhắn bạn muốn gửi đến tất cả các nhóm",
+			notification: "Thông báo từ admin bot đến tất cả nhóm chat (không phản hồi tin nhắn này)",
+			sendingNotification: "Bắt đầu gửi thông báo từ admin bot đến %1 nhóm chat",
+			sentNotification: "✅ Đã gửi thông báo đến %1 nhóm thành công",
+			errorSendingNotification: "Có lỗi xảy ra khi gửi đến %1 nhóm:\n%2"
+		},
+		en: {
+			missingMessage: "Please enter the message you want to send to all groups",
+			notification: "Notification from admin bot to all chat groups (do not reply to this message)",
+			sendingNotification: "Start sending notification from admin bot to %1 chat groups",
+			sentNotification: "✅ Sent notification to %1 groups successfully",
+			errorSendingNotification: "An error occurred while sending to %1 groups:\n%2"
+		}
+	},
 
-	version: "5.0",  
-	author: "𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍",  
+	onStart: async function ({ message, api, event, args, commandName, envCommands, threadsData, getLang }) {
+		const { delayPerGroup } = envCommands[commandName];
+		if (!args[0])
+			return message.reply(getLang("missingMessage"));
+		const formSend = {
+			body: `${getLang("notification")}\n────────────────\n${args.join(" ")}`,
+			attachment: await getStreamsFromAttachment(
+				[
+					...event.attachments,
+					...(event.messageReply?.attachments || [])
+				].filter(item => ["photo", "png", "animated_image", "video", "audio"].includes(item.type))
+			)
+		};
 
-	countDown: 5,  
-	role: 2,  
+		const allThreadID = (await threadsData.getAll()).filter(t => t.isGroup && t.members.find(m => m.userID == api.getCurrentUserID())?.inGroup);
+		message.reply(getLang("sendingNotification", allThreadID.length));
 
-	shortDescription: {  
-		en: "Premium Notification"  
-	},  
+		let sendSucces = 0;
+		const sendError = [];
+		const wattingSend = [];
 
-	longDescription: {  
-		en: "Send notification all groups"  
-	},  
-
-	category: "owner",  
-
-	guide: {  
-		en: "{pn} [message]"  
-	},  
-
-	envConfig: {  
-		delayPerGroup: 1200,  
-		retryCount: 5  
-	}  
-},  
-
-langs: {  
-	en: {  
-		missingMessage: "⚠️ একটি মেসেজ লিখুন"  
-	}  
-},  
-
-onStart: async function ({  
-	api,  
-	event,  
-	args,  
-	message,  
-	threadsData,  
-	envCommands,  
-	commandName,  
-	getLang  
-}) {  
-
-	try {  
-
-		const { delayPerGroup, retryCount } =  
-			envCommands[commandName];  
-
-		if (!args[0]) {  
-			return message.reply(  
-				getLang("missingMessage")  
-			);  
-		}  
-
-		// 📦 সব গ্রুপ নেওয়া  
-		const allThreads =  
-			(await threadsData.getAll())  
-			.filter(thread =>  
-				thread.isGroup &&  
-				thread.members?.find(  
-					member =>  
-						member.userID ==  
-						api.getCurrentUserID()  
-				)?.inGroup  
-			);  
-
-		if (!allThreads.length) {  
-			return message.reply(  
-				"❌ কোন গ্রুপ পাওয়া যায়নি"  
-			);  
-		}  
-
-		// 📎 Attachment Support  
-		const attachments =  
-			await getStreamsFromAttachment(  
-				[  
-					...event.attachments,  
-					...(event.messageReply?.attachments || [])  
-				].filter(item =>  
-					[  
-						"photo",  
-						"video",  
-						"audio",  
-						"animated_image",  
-						"png"  
-					].includes(item.type)  
-				)  
-			);  
-
-		// ✨ Premium Notification Body  
-		const body =
-
-`👑𝗕𝗢𝗧 𝗢𝗪𝗡𝗘𝗥
-𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
-
-দয়া করে এই মেসেজের কেউ রিপ্লাই দিবেন না তাহলে কোন রেসপন্স পাবেন না
-
-👑 𝗡𝗜𝗝𝗛𝗨𝗠 𝗕𝗢𝗧 ✨
-
-────────────────
-
-${args.join(" ")}`;
-
-// 📡 Start Message  
-		await message.reply(
-
-`╭────────────────╮
-│ 📡 নোটিফিকেশন শুরু হয়েছে
-├────────────────┤
-│ 👑 Owner: 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍
-│ 📦 মোট গ্রুপ: ${allThreads.length}
-│ ⚡ স্ট্যাটাস: Sending...
-╰────────────────╯`
-);
-
-let success = 0;  
-		let failed = [];  
-
-		// 🚀 Better Stable Sending System  
-		for (const thread of allThreads) {  
-
-			const threadID = thread.threadID;  
-
-			let delivered = false;  
-
-			for (let retry = 0; retry < retryCount; retry++) {  
-
-				try {  
-
-					await api.sendMessage(  
-						{  
-							body,  
-							attachment: attachments  
-						},  
-						threadID  
-					);  
-
-					delivered = true;  
-					success++;  
-
-					// ✅ React  
-					try {  
-						api.setMessageReaction(  
-							"✅",  
-							event.messageID,  
-							() => {},  
-							true  
-						);  
-					}  
-					catch (_) {}  
-
-					break;  
-
-				}  
-				catch (err) {  
-
-					if (retry === retryCount - 1) {  
-
-						failed.push({  
-							threadID,  
-							error:  
-								err?.errorDescription ||  
-								err?.message ||  
-								"Unknown Error"  
-						});  
-					}  
-
-					// ⏳ Retry Delay  
-					await new Promise(resolve =>  
-						setTimeout(resolve, 2000)  
-					);  
-				}  
-			}  
-
-			// ⏳ Main Delay  
-			await new Promise(resolve =>  
-				setTimeout(resolve, delayPerGroup)  
-			);  
-		}  
-
-		// 📊 Premium Report  
-		let report =
-
-`╭────────────────╮
-│ 👑 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍
-├────────────────┤
-│ 📡 নোটিফিকেশন রিপোর্ট
-├────────────────┤
-│ ✅ সফল: ${success} টি গ্রুপ
-│ ❌ ব্যর্থ: ${failed.length} টি গ্রুপ
-│ 🖥️ Bot: Online
-│ ⚡ System: ${os.hostname()}
-╰────────────────╯`;
-
-// ❌ Failed List  
-		if (failed.length > 0) {  
-
-			report += `\n\n📋 Failed Group List:\n`;  
-
-			for (const item of failed) {  
-
-				report += `
-
-• ${item.threadID}
-  ↳ ${item.error}`;
+		for (const thread of allThreadID) {
+			const tid = thread.threadID;
+			try {
+				wattingSend.push({
+					threadID: tid,
+					pending: api.sendMessage(formSend, tid)
+				});
+				await new Promise(resolve => setTimeout(resolve, delayPerGroup));
+			}
+			catch (e) {
+				sendError.push(tid);
 			}
 		}
 
-// 🔥 Final Status  
-		report += `
+		for (const sended of wattingSend) {
+			try {
+				await sended.pending;
+				sendSucces++;
+			}
+			catch (e) {
+				const { errorDescription } = e;
+				if (!sendError.some(item => item.errorDescription == errorDescription))
+					sendError.push({
+						threadIDs: [sended.threadID],
+						errorDescription
+					});
+				else
+					sendError.find(item => item.errorDescription == errorDescription).threadIDs.push(sended.threadID);
+			}
+		}
 
-────────────────
-🔰 Final Status:
-${
-failed.length === 0
-? "সব গ্রুপে সফলভাবে নোটিফিকেশন পাঠানো হয়েছে ✅"
-: "কিছু গ্রুপে নোটিফিকেশন যায়নি ❌"
-}`;
-
-return message.reply(report);  
-
-	}  
-	catch (err) {  
-
-		console.log(err);  
-
-		return message.reply(
-
-`❌ Notification System Error
-
-${err.message}`
-);
-}
-}
+		let msg = "";
+		if (sendSucces > 0)
+			msg += getLang("sentNotification", sendSucces) + "\n";
+		if (sendError.length > 0)
+			msg += getLang("errorSendingNotification", sendError.reduce((a, b) => a + b.threadIDs.length, 0), sendError.reduce((a, b) => a + `\n - ${b.errorDescription}\n  + ${b.threadIDs.join("\n  + ")}`, ""));
+		message.reply(msg);
+	}
 };
