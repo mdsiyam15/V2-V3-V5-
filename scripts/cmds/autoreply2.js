@@ -13,7 +13,7 @@ const botMessages = new Set();
 
 module.exports = {
   config: {
-    name: "fa",
+    name: "autoreply2",
     version: "7.3.0",
     author: "MR_FARHAN + REACTION DELETE",
     countDown: 0,
