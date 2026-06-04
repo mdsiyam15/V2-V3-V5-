@@ -1,214 +1,86 @@
-const axios = require("axios");
-const { getPrefix, getStreamFromURL } = global.utils;
-const { commands } = global.GoatBot;
-const fs = require("fs");
-const path = require("path");
-
-let xfont = null;
-let yfont = null;
-let categoryEmoji = null;
-
-// 🎥 VIDEO ROTATION SYSTEM
-const HELP_VIDEOS = [
-  "https://files.catbox.moe/0wx30s.mp4",
-  "https://files.catbox.moe/rjdbb9.mp4"
-];
-
-const videoCountFile = path.join(__dirname, "help_video_count.json");
-
-function getNextHelpVideo() {
-  let index = 0;
-
-  try {
-    if (fs.existsSync(videoCountFile)) {
-      const data = JSON.parse(fs.readFileSync(videoCountFile, "utf8"));
-      index = data.index || 0;
-    }
-  } catch (e) {
-    console.log("Video count read error:", e.message);
-  }
-
-  const selectedVideo = HELP_VIDEOS[index];
-
-  const nextIndex = (index + 1) % HELP_VIDEOS.length;
-
-  try {
-    fs.writeFileSync(
-      videoCountFile,
-      JSON.stringify({ index: nextIndex })
-    );
-  } catch (e) {
-    console.log("Video count write error:", e.message);
-  }
-
-  return selectedVideo;
-}
-
-// 🔒 AUTHOR LOCK SYSTEM
-const AUTHOR_NAME = "FARHAN-KHAN";
-const FILE_PATH = __filename;
-
-function checkAuthorLock() {
-  try {
-    const fileData = fs.readFileSync(FILE_PATH, "utf-8");
-    if (!fileData.includes(`author: "${AUTHOR_NAME}"`)) {
-      console.log("❌ AUTHOR CHANGED! FILE LOCKED.");
-      return false;
-    }
-    return true;
-  } catch (e) {
-    console.log("❌ ERROR CHECKING AUTHOR LOCK");
-    return false;
-  }
-}
-
-async function loadResources() {
-  try {
-    const [x, y, c] = await Promise.all([
-      axios.get("https://raw.githubusercontent.com/Saim-x69x/sakura/main/xfont.json"),
-      axios.get("https://raw.githubusercontent.com/Saim-x69x/sakura/main/yfont.json"),
-      axios.get("https://raw.githubusercontent.com/Saim-x69x/sakura/main/category.json")
-    ]);
-    xfont = x.data;
-    yfont = y.data;
-    categoryEmoji = c.data;
-  } catch (e) {
-    console.error("[HELP] Resource load failed", e);
-    xfont = {};
-    yfont = {};
-    categoryEmoji = {};
-  }
-}
-
-function fontConvert(text, type = "command") {
-  const map = type === "category" ? xfont : yfont;
-  if (!map) return text;
-  return text.split("").map(c => map[c] || c).join("");
-}
-
-function getCategoryEmoji(cat) {
-  return categoryEmoji?.[cat.toLowerCase()] || "🗂️";
-}
-
-function roleText(role) {
-  const roles = { 0: "All Users", 1: "Group Admins", 2: "Bot Admin" };
-  return roles[role] || "Unknown";
-}
-
-function findCommand(name) {
-  name = name.toLowerCase();
-  for (const [, cmd] of commands) {
-    const a = cmd.config?.aliases;
-    if (cmd.config?.name === name) return cmd;
-    if (Array.isArray(a) && a.includes(name)) return cmd;
-    if (typeof a === "string" && a === name) return cmd;
-  }
-  return null;
-}
-
 module.exports = {
   config: {
     name: "help",
-    aliases: ["menu"],
-    version: "2.1",
-    author: "FARHAN-KHAN",
+    aliases: ["he", "hall"],
+    version: "4.0",
+    author: "SIYAM",
+    countDown: 3,
     role: 0,
+    shortDescription: "GOAT BOT V2 Information",
+    longDescription: "Shows GOAT BOT V2 information and contact details",
     category: "info",
-    shortDescription: "Show all commands",
-    guide: "{pn} | {pn} <command> | {pn} -c <category>"
+    guide: {
+      en: "{pn}"
+    }
   },
 
-  onStart: async function ({ message, args, event, role }) {
+  onStart: async function ({ message }) {
+    return message.reply(`
+👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
+━━━━━━━━━━━━━━━━━━
+🐔 𝐂𝐇𝐔𝐃𝐈 𝐋𝐈𝐒𝐓 🐔
 
-    if (!checkAuthorLock()) {
-      return message.reply("❌ FILE LOCKED! DON'T CHANGE AUTHOR.");
-    }
+➤ ,𝐌𝐔𝐑𝐆𝐈 • ,𝐌𝐔𝐑𝐆𝐈𝟐 • ,𝐒𝐈𝐘𝐀𝐌𝟓
+➤ ,𝐌𝐘𝐆𝐈𝐑𝐋 • ,𝐏𝐀𝐈𝐑 • ,𝐏𝐀𝐈𝐑𝟐
+➤ ,𝐏𝐀𝐈𝐑𝟑 •  • ,𝐌𝐀𝐑𝐑𝐈𝐄𝐃
+➤ ,𝐋𝐎𝐕 • ,𝐋𝐎𝐕𝐄 • ,𝐍𝐄𝐄𝐃𝐆𝐅
 
-    if (!xfont || !yfont || !categoryEmoji) await loadResources();
+━━━━━━━━━━━━━━━
+🔞 𝟏𝟖+ 𝐋𝐈𝐒𝐓 🔞
+➤ ,𝟏𝟖+ • ,𝐇𝐎𝐓 • ,𝐇𝐎𝐓𝟐
+➤ ,𝐇𝐎𝐑𝐍𝐘 • ,𝐍𝐔𝐃𝐄 • ,𝐒𝐄𝐗
+➤ ,𝐒𝐄𝐗𝟐 • ,𝐗𝐍𝐗 • ,𝐔𝐅𝐅
+➤ ,𝐂𝐇𝐔𝐃𝐈 • ,𝐅𝐔𝐂𝐊 • ,𝐅𝐔𝐂𝐊𝟐
+➤ ,𝐅𝐔𝐂𝐊𝟑 • ,𝐂𝐇𝐀𝐊𝐑𝐔𝐍
+━━━━━━━━━━━━━━━━━
+🔥 𝐅𝐔𝐍 & 𝐓𝐑𝐎𝐋𝐋 𝐋𝐈𝐒𝐓 🔥
+━━━━━━━━━━━━━━━━━
+➤ ,𝐡𝐚𝐜𝐤 • ,𝐡𝐢𝐣𝐥𝐚 • ,𝐡𝐢𝐭𝐥𝐞𝐫
+➤ ,𝐡𝐮𝐠 • ,𝐣𝐚𝐢𝐥 • ,𝐣𝐚𝐢𝐥𝟐
+➤ ,𝐤𝐢𝐬𝐬 • ,𝐤𝐢𝐬𝐬𝟐 • ,𝐤𝐨𝐥𝐚
+➤ ,𝐥𝐚𝐭𝐭𝐢 • ,𝐥𝐨𝐯 • ,𝐦𝐚𝐧
+➤ ,𝐦𝐚𝐫𝐫𝐢𝐞𝐝 • ,𝐦𝐞𝐦𝐞 • ,𝐦𝐞𝐦𝐞𝟐
+➤ ,𝐦𝐢𝐚 • ,𝐧𝐞𝐞𝐝𝐠𝐟 • ,𝐧𝐨𝐤𝐢𝐚
+➤ ,𝐩𝐚𝐢𝐫 • ,𝐩𝐚𝐢𝐫𝟐 • ,𝐩𝐚𝐢𝐫𝟑
+➤ ,𝐩𝐚𝐢𝐫𝟒 • ,𝐩𝐞𝐭 • ,𝐩𝐫𝐨𝐩𝐨𝐬𝐞
+➤ ,𝐬𝐚𝐝 • ,𝐭𝐨𝐢𝐥𝐞𝐭 • ,𝐭𝐨𝐤𝐚𝐢
+➤ ,𝐯𝐚𝐠𝐠𝐨 • ,𝐠𝐨𝐫𝐮 • ,𝐠𝐨𝐫𝐮𝟐
+➤ ,𝐠𝐚𝐲 • ,𝐠𝐚𝐲𝟐 • ,𝐡𝐨𝐫𝐧𝐲
+➤ ,𝐛𝐮𝐳𝐳 • ,𝐜𝐚𝐩𝐭𝐚𝐢𝐧 • ,𝐜𝐡𝐚𝐤𝐫𝐮𝐧
+➤ ,𝐟𝐮𝐧 • ,𝐟𝐮𝐧𝐧𝐲 • ,𝐠𝐮𝐞𝐬𝐬𝐧𝐮𝐦𝐛𝐞𝐫
 
-    const prefix = getPrefix(event.threadID);
-    const input = args.join(" ").trim();
+━━━━━━━━━━━━━━━━━━
+📹 𝐕𝐈𝐃𝐄𝐎 & 𝐌𝐄𝐃𝐈𝐀 𝐋𝐈𝐒𝐓 📹
+━━━━━━━━━━━━━━━━━━
 
-    // 🎥 AUTO VIDEO CHANGE
-    const HELP_GIF = getNextHelpVideo();
+➤ ,𝐥𝐨𝐯𝐞 • ,𝐦𝐩𝟑 • ,𝐯𝐢𝐝𝐞𝐨
+➤ ,𝐯𝐢𝐝𝐞𝐨𝟐 • ,𝐬𝐨𝐧𝐠 • ,𝐬𝐨𝐮𝐧𝐝
+➤ ,𝐯𝐨𝐢𝐜𝐞 • ,𝐭𝐞𝐱𝐭_𝐯𝐨𝐢𝐜𝐞
+➤ ,𝐜𝐨𝐧𝐯𝐞𝐫𝐭𝐦𝐩𝟑 • ,𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝
+➤ ,𝐭𝐢𝐤𝐭𝐨𝐤 • ,𝐭𝐢𝐤
 
-    const categories = {};
-    for (const [name, cmd] of commands) {
-      if (!cmd?.config || cmd.config.role > role) continue;
-      const cat = (cmd.config.category || "UNCATEGORIZED").toUpperCase();
-      if (!categories[cat]) categories[cat] = [];
-      categories[cat].push(name);
-    }
+━━━━━━━━━━━━━━━━━━
+👑𝐎𝐖𝐍𝐄𝐑 𝐒𝐘𝐒𝐓𝐄𝐌 𝐋𝐈𝐒𝐓👑
+━━━━━━━━━━━━━━━━━━
 
-    // 📂 CATEGORY VIEW
-    if (args[0] === "-c" && args[1]) {
-      const cat = args[1].toUpperCase();
-      if (!categories[cat])
-        return message.reply(`❌ Category "${cat}" not found`);
+➤ ,𝐡𝐞𝐥𝐩 • ,𝐡𝐞𝐥𝐩𝟐 • ,𝐡𝐞𝐥𝐩𝟑
+➤ ,𝐡𝐞𝐥𝐩𝐚𝐥𝐥 • ,𝐨𝐰𝐧𝐞𝐫 • ,𝐨𝐰𝐧𝐞𝐫𝟐
+➤ ,𝐢𝐧𝐟𝐨 • ,𝐢𝐧𝐟𝐨𝟐 • ,𝐩𝐫𝐞𝐟𝐢𝐱
+➤ ,𝐛𝐨𝐭𝐢𝐧𝐟𝐨 • ,𝐛𝐨𝐭𝐬𝐭𝐚𝐭𝐮𝐬
+➤ ,𝐮𝐩 • ,𝐬𝐨𝐫𝐭𝐡𝐞𝐥𝐩
 
-      let msg = `╭─────✰『 ${getCategoryEmoji(cat)} ${fontConvert(cat, "category")} 』\n`;
-      for (const c of categories[cat].sort())
-        msg += `│🪯 ${fontConvert(c)}\n`;
-      msg += `╰────────────✰\n`;
-      msg += `> TOTAL: ${categories[cat].length}\n> PREFIX: ${prefix}`;
-
-      return message.reply({
-        body: msg,
-        attachment: await getStreamFromURL(HELP_GIF)
-      });
-    }
-
-    // 📜 FULL LIST
-    if (!input) {
-      let msg = `╭───────❁\n│👑‿𝐒𝐈𝐘𝐀𝐌 𝗛𝗘𝗟𝗣 𝗟𝗜𝗦𝗧👑 \n╰────────────❁\n`;
-
-      for (const cat of Object.keys(categories).sort()) {
-        msg += `╭─────✰『 ${getCategoryEmoji(cat)} ${fontConvert(cat, "category")} 』\n`;
-        for (const c of categories[cat].sort())
-          msg += `│🪯 ${fontConvert(c)}\n`;
-        msg += `╰────────────✰\n`;
-      }
-
-      const total = Object.values(categories).reduce((a, b) => a + b.length, 0);
-
-      msg += `╭─────✰[🪬 𝐄𝐍𝐉𝐎𝐘 🪬]\n│> TOTAL COMMANDS: [${total}]\n│\n│> TYPE: [ ${prefix}help <command> ]\n│\n│> FB.LINK: [https://www.facebook.com/share/1LDy7c49aK/]\n╰────────────✰\n`;
-      msg += `╭─────✰\n│ 🐲 ‿𝐍𝐈𝐉𝐇𝐔𝐌-𝗕𝗢𝗧 🐲\n╰────────────✰`;
-
-      return message.reply({
-        body: msg,
-        attachment: await getStreamFromURL(HELP_GIF)
-      });
-    }
-
-    // 🔍 COMMAND INFO
-    const cmd = findCommand(input);
-    if (!cmd) return message.reply(`❌ Command "${input}" not found`);
-
-    const c = cmd.config;
-    const aliasText = Array.isArray(c.aliases) ? c.aliases.join(", ") : c.aliases || "None";
-
-    let usage = "No usage";
-    if (c.guide) {
-      if (typeof c.guide === "string") usage = c.guide;
-      else if (typeof c.guide === "object")
-        usage = c.guide.en || Object.values(c.guide)[0] || "No usage";
-
-      usage = usage.replace(/{pn}/g, `${prefix}${c.name}`);
-    }
-
-    const infoMsg = `
-╭─── COMMAND INFO ───╮
-🔹 Name : ${c.name}
-📂 Category : ${c.category || "UNCATEGORIZED"}
-🔑 Aliases : ${aliasText}
-👥 Role : ${roleText(c.role)}
-📝 Description : ${c.shortDescription || "No description"}
-📖 Usage : ${usage}
-╰──────────────────╯`;
-
-    return message.reply({
-      body: infoMsg,
-      attachment: await getStreamFromURL(HELP_GIF)
-    });
+━━━━━━━━━━━━━━
+💎 𝐒𝐈𝐘𝐀𝐌 𝐁𝐎𝐓 𝐕𝟐 • 𝐕𝟑 • 𝐕𝟓 💎
+━━━━━━━━━━━━━━
+📌 আরও কমান্ড দেখতে নিচের কমান্ডগুলো ব্যবহার করুন:
+➤ ,𝐡𝐞𝐥𝐩𝟐
+— আরও ক্যাটাগরির কমান্ড দেখুন। ➤ ,𝐡𝐞𝐥𝐩𝐚𝐥𝐥
+— বটের সকল কমান্ড একসাথে  🚀  দেখতে ,helpall টাইপ করুন।
+━━━━━━━━━━━━━━
+🚀 মোট কমান্ড ➜ ৩০০+
+🤖 সাপোর্টেড ভার্সন ➜ 𝐕𝟐 • 𝐕𝟑 • 𝐕𝟓
+━━━━━━━━━━━━━━━
+`);
   }
 };
+      
