@@ -79,7 +79,7 @@ module.exports = {
       );
 
       return api.sendMessage(
-        `✅ | Correct Answer!\n💰 ${getCoin} coins earned\n✨ ${getExp} exp earned`,
+        `💲 | Correct Answer!\n💰 ${getCoin} coins earned\n✨ ${getExp} exp earned`,
         event.threadID,
         event.messageID
       );
