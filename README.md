@@ -1,6 +1,6 @@
 <!-- 🔥 NEON BANNER -->
 <p align="center">
-  <img src="https://i.imgur.com/eEGCdLe.gif" width="100%">
+  <img src="https://i.imgur.com/C5LX7BN.gif" width="100%">
 </p>
 
 <!-- 🔥 TITLE -->
