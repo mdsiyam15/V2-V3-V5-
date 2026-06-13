@@ -1,6 +1,9 @@
-let tagStates = {};
+// বটের গ্লোবাল মেমোরিতে ট্যাগ স্টেট ভেরিফাই করা (ফোল্ডারে লোড হওয়ার সুরক্ষার জন্য)
+if (!global.siyamTagStates) {
+    global.siyamTagStates = {};
+}
 
-// 🔒 [HARD LOCK 1] - গ্লোবাল অথর নেম ভেরিফিকেশন (এখানে হাত দিলেই বট ডেড)
+// 🔒 [HARD LOCK 1] - গ্লোবাল অথর নেম ভেরিফিকেশন
 const CORE_AUTHOR = "👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑";
 if (CORE_AUTHOR !== "👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑") {
     console.error("❌ AUTHOR NAME MODIFIED! SECURITY BREACH DETECTED. CLOSING BOT...");
@@ -10,7 +13,7 @@ if (CORE_AUTHOR !== "👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑")
 module.exports = {
     config: {
         name: "tag",
-        version: "7.5",
+        version: "7.6",
         author: "👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑", // 🔒 [HARD LOCK 2] - কনফিগ অথর লক
         role: 0,
         category: "GROUP",
@@ -19,10 +22,13 @@ module.exports = {
         guide: "tag on / tag off"
     },
 
-    onStart: async function () {},
+    onStart: async function ({ message }) {
+        // ফোল্ডারে ফাইল লোড হওয়ার সময় নিশ্চুপ বা ক্রাশ হওয়া ঠেকাতে ডিফল্ট রিটার্ন
+        return;
+    },
 
     onChat: async function ({ api, event }) {
-        // 🔒 [HARD LOCK 3] - রান-টাইম সিকিউরিটি চেক (কোনোভাবেই বাইপাস করা সম্ভব না)
+        // 🔒 [HARD LOCK 3] - রান-টাইম সিকিউরিটি চেক
         if (this.config.author !== "👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑" || CORE_AUTHOR !== "👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑") {
             console.error("❌ CRITICAL: Unauthorized credit change detected! Stopping process...");
             return process.exit(1);
@@ -33,24 +39,30 @@ module.exports = {
             const threadID = event.threadID;
 
             if (body === "tag on") {  
-                if (tagStates[threadID]?.running) {
-                    return api.sendMessage("☺️আমার বস🫶 সিয়াম 😃!", threadID);  
+                if (global.siyamTagStates[threadID]?.running) {
+                    return api.sendMessage("⚠️ আমার বস 👑 সিয়াম ভাই অলরেডি ট্যাগ সিস্টেম চালু করে রেখেছেন!", threadID);  
                 }
-                tagStates[threadID] = { running: true, manualStop: false };  
+                global.siyamTagStates[threadID] = { running: true, manualStop: false };  
                 api.sendMessage("👑 সিয়াম ভাই, আপনার ট্যাগ সিস্টেম চালু হয়েছে!\n🚫 বন্ধ করতে 'tag off' লিখুন।", threadID);  
-                this.startTagLoop(api, threadID);  
+                
+                // লুপটিকে ব্যাকগ্রাউন্ডে সেফলি রান করানো
+                this.startTagLoop(api, threadID).catch(err => {
+                    console.error("Loop Error:", err);
+                    api.sendMessage("❌ লুপ চলার মাঝপথে সমস্যা হয়েছে: " + err.message, threadID);
+                });
                 return;  
             }  
 
             if (body === "tag off") {  
-                if (tagStates[threadID]) {
-                    tagStates[threadID].running = false;  
-                    tagStates[threadID].manualStop = true; // ম্যানুয়াল স্টপ ফ্ল্যাগ অন
+                if (global.siyamTagStates[threadID]) {
+                    global.siyamTagStates[threadID].running = false;  
+                    global.siyamTagStates[threadID].manualStop = true; 
                 }
                 return api.sendMessage("❌ সিয়াম ভাই, ট্যাগ সিস্টেমটি সফলভাবে বন্ধ করা হয়েছে। 👑", threadID);  
             }  
         } catch (err) { 
-            api.sendMessage("Error: " + err.message, event.threadID); 
+            console.error("OnChat Error:", err);
+            api.sendMessage("🚨 সিস্টেম এরর (OnChat): " + err.message, event.threadID); 
         }
     },
 
@@ -81,15 +93,21 @@ module.exports = {
 
         try {  
             const threadInfo = await api.getThreadInfo(threadID);  
+            if (!threadInfo) {
+                return api.sendMessage("❌ ভুল: গ্রুপের তথ্য (Thread Info) পাওয়া যায়নি। বটকে গ্রুপ এডমিন দিন।", threadID);
+            }
+
             const members = threadInfo.participantIDs || [];  
             const userInfo = Array.isArray(threadInfo.userInfo) ? threadInfo.userInfo : [];  
 
-            // 👑 নিখুঁত লুপ: প্রতি মেম্বারকে শুধু ১ বার ট্যাগ করবে
-            for (const uid of members) {  
-                // যদি আপনি ম্যানুয়ালি 'tag off' লিখে দেন, তবে লুপ সাথে সাথে বন্ধ হবে
-                if (!tagStates[threadID]?.running) break;  
+            if (members.length === 0) {
+                return api.sendMessage("❌ ভুল: গ্রুপের মেম্বার লিস্ট খালি অথবা ডাটা ব্লক করা।", threadID);
+            }
 
-                // বটের নিজের আইডি বাদ দেওয়ার জন্য যেন বট নিজেকে ট্যাগ না করে
+            // 👑 নিখুঁত লুপ
+            for (const uid of members) {  
+                if (!global.siyamTagStates[threadID]?.running) break;  
+
                 if (uid == api.getCurrentUserID()) continue;
 
                 const baseMsg = baseMessages[Math.floor(Math.random() * baseMessages.length)];  
@@ -103,23 +121,22 @@ module.exports = {
                     mentions: [{  
                         tag: `@${userName}`,  
                         id: uid  
-                    }]  
+                    }]
                 }, threadID);  
 
-                // স্প্যাম ব্লক এড়াতে প্রতি ট্যাগের মাঝে ৪ সেকেন্ডের নিখুঁত বিরতি
                 await new Promise(resolve => setTimeout(resolve, 4000));  
             }  
             
-            // 🤖 লুপ শেষ হওয়ার পর অটোমেটিক সিস্টেম অফ করার লজিক (ম্যানুয়ালি অফ না করা হলে)
-            if (tagStates[threadID]?.running && !tagStates[threadID]?.manualStop) {
-                tagStates[threadID].running = false;
+            // অটোমেটিক সিস্টেম অফ করার লজিক
+            if (global.siyamTagStates[threadID]?.running && !global.siyamTagStates[threadID]?.manualStop) {
+                global.siyamTagStates[threadID].running = false;
                 api.sendMessage("✅ সিয়াম ভাই, গ্রুপের সকল সদস্যকে একবার করে ট্যাগ করা সম্পন্ন হয়েছে। সিস্টেম এখন অটো-অফ। 👑", threadID);
             }
 
         } catch (err) {  
-            console.error(err);  
-            if (tagStates[threadID]) tagStates[threadID].running = false;  
-            api.sendMessage("❌ ট্যাগ লুপে কোনো সমস্যা হয়েছে বা মেম্বার ডাটা পাওয়া যায়নি।", threadID);
+            console.error("Loop Internal Error:", err); 
+            if (global.siyamTagStates[threadID]) global.siyamTagStates[threadID].running = false;  
+            api.sendMessage("❌ ট্যাগ লুপে সমস্যা: " + err.message, threadID);
         }
     }
 };
