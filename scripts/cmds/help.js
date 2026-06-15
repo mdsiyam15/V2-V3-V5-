@@ -2,20 +2,28 @@ module.exports = {
   config: {
     name: "help",
     aliases: ["he", "hall"],
-    version: "4.0",
+    version: "4.5.0",
     author: "SIYAM",
     countDown: 3,
     role: 0,
     shortDescription: "GOAT BOT V2 Information",
-    longDescription: "Shows GOAT BOT V2 information and contact details",
+    longDescription: "Shows GOAT BOT V2 information and contact details exclusively.",
     category: "info",
     guide: {
       en: "{pn}"
     }
   },
 
-  onStart: async function ({ message }) {
-    return message.reply(`
+  onStart: async function () {},
+
+  onChat: async function ({ event, message }) {
+    if (!event.body || typeof event.body !== "string") return;
+    
+    const input = event.body.trim();
+    
+    // 🎯 স্ট্রাকচার্ড কন্ডিশন: প্রিফিক্স সহ শুধু মূল নাম বা এলিয়াস একা থাকলে কাজ করবে
+    if (input === ",help" || input === ",he" || input === ",hall") {
+      return message.reply(`
 👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
 ━━━━━━━━━━━━━━━━━━
 🐔 𝐂𝐇𝐔𝐃𝐈 𝐋𝐈𝐒𝐓 🐔
@@ -42,21 +50,21 @@ module.exports = {
 ➤ ,𝐦𝐚𝐫𝐫𝐢𝐞𝐝 • ,𝐦𝐞𝐦𝐞 • ,𝐦𝐞𝐦𝐞𝟐
 ➤ ,𝐦𝐢𝐚 • ,𝐧𝐞𝐞𝐝𝐠𝐟 • ,𝐧𝐨𝐤𝐢𝐚
 ➤ ,𝐩𝐚𝐢𝐫 • ,𝐩𝐚𝐢𝐫𝟐 • ,𝐩𝐚𝐢𝐫𝟑
-➤ ,𝐩𝐚𝐢𝐫𝟒 • ,𝐩𝐞𝐭 • ,𝐩𝐫𝐨𝐩𝐨𝐬𝐞
+➤ ,𝐩𝐚𝐢𝐫𝟒 • ,𝐩𝐭 • ,𝐩𝐫𝐨𝐩𝐨𝐬𝐞
 ➤ ,𝐬𝐚𝐝 • ,𝐭𝐨𝐢𝐥𝐞𝐭 • ,𝐭𝐨𝐤𝐚𝐢
 ➤ ,𝐯𝐚𝐠𝐠𝐨 • ,𝐠𝐨𝐫𝐮 • ,𝐠𝐨𝐫𝐮𝟐
 ➤ ,𝐠𝐚𝐲 • ,𝐠𝐚𝐲𝟐 • ,𝐡𝐨𝐫𝐧𝐲
 ➤ ,𝐛𝐮𝐳𝐳 • ,𝐜𝐚𝐩𝐭𝐚𝐢𝐧 • ,𝐜𝐡𝐚𝐤𝐫𝐮𝐧
-➤ ,𝐟𝐮𝐧 • ,𝐟𝐮𝐧𝐧𝐲 • ,𝐠𝐮𝐞𝐬𝐬𝐧𝐮𝐦𝐛𝐞𝐫
+➤ ,𝐟𝐮𝐧 • ,𝐟𝐮𝐧𝐧𝐲 • ,𝐠𝐮𝐞𝐬𝐬 camps
 
 ━━━━━━━━━━━━━━━━━━
 📹 𝐕𝐈𝐃𝐄𝐎 & 𝐌𝐄𝐃𝐈𝐀 𝐋𝐈𝐒𝐓 📹
 ━━━━━━━━━━━━━━━━━━
 
 ➤ ,𝐥𝐨𝐯𝐞 • ,𝐦𝐩𝟑 • ,𝐯𝐢𝐝𝐞𝐨
-➤ ,𝐯𝐢𝐝𝐞𝐨𝟐 • ,𝐬𝐨𝐧𝐠 • ,𝐬𝐨𝐮𝐧𝐝
+➤ ,𝐯𝐢𝐝𝐞𝐨𝟐 • ,𝐬𝐨𝐧𝐠 • ,𝐬𝐨𝐮𝐧加快
 ➤ ,𝐯𝐨𝐢𝐜𝐞 • ,𝐭𝐞𝐱𝐭_𝐯𝐨𝐢𝐜𝐞
-➤ ,𝐜𝐨𝐧𝐯𝐞𝐫𝐭𝐦𝐩𝟑 • ,𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝
+➤ ,𝐜21𝐧𝐯𝐞𝐫𝐭𝐦𝐩𝟑 • ,𝐝𝐨𝐰𝐧𝐥23𝐝
 ➤ ,𝐭𝐢𝐤𝐭𝐨𝐤 • ,𝐭𝐢𝐤
 
 ━━━━━━━━━━━━━━━━━━
@@ -76,10 +84,10 @@ module.exports = {
 ➤ ,𝐡𝐞𝐥𝐩𝟐
 — বটের সকল কমান্ড একসাথে  🚀  দেখতে ,𝐡𝐞𝐥𝐩𝐚𝐥𝐥 টাইপ করুন।
 ━━━━━━━━━━━━━━
-🚀 মোট কমান্ড ➜ ৩০০+
+🚀 মোট কমান্ড ➜ 7০০+
 🤖 সাপোর্টেড ভার্সন ➜ 𝐕𝟐 • 𝐕𝟑 • 𝐕𝟓
 ━━━━━━━━━━━━━━━
 `);
+    }
   }
 };
-      
