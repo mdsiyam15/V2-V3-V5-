@@ -1,5 +1,5 @@
 // 👑 Owner: 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑
-// Enterprise-Grade Owner/Admin Prefix Bypass Engine (v3.0.0)
+// Enterprise-Grade Owner/Admin Prefix Bypass Engine (v3.0.2) - Double Reply Fixed
 
 const OWNER_UID = "61590360434650";
 
@@ -64,11 +64,11 @@ function validateAndRefreshCache(commands) {
 module.exports = {
   config: {
     name: "owner_noprefix",
-    version: "3.0.0",
+    version: "3.0.2",
     author: "👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑",
     role: 0,
     shortDescription: "Enterprise Owner No-Prefix Engine",
-    longDescription: "Production ready system with dynamic caching, security boundaries and single cleanup thread.",
+    longDescription: "Production ready system with dynamic caching and strict duplicate prevention filters.",
     category: "system"
   },
 
@@ -80,7 +80,7 @@ module.exports = {
     const { event, message } = O;
     const rawBody = event.body;
 
-    // Input Sanitization (Safe exit if empty, spaces, or missing message object)
+    // Input Sanitization
     if (!rawBody || typeof rawBody !== "string") return;
     const body = rawBody.trim();
     if (!body) return;
@@ -91,21 +91,19 @@ module.exports = {
     // Instantly exit if sender is not the Owner or a Bot Admin
     if (senderID !== OWNER_UID && !botAdmins.includes(senderID)) return;
 
+    // 🛑 [FIX 01] যদি মেসেজে অলরেডি প্রিফিক্স থাকে, তবে এই ফাইল থেকে রান করানো সম্পূর্ণ ব্লক।
+    // এর ফলে মেইন বোট একবারই মেসেজ হ্যান্ডেল করবে এবং ডাবল রেসপন্স আসবে না।
+    const botPrefix = global.GoatBot?.config?.prefix || "/";
+    if (body.startsWith(botPrefix)) return;
+
     try {
       if (!global.GoatBot || !global.GoatBot.commands) {
         logger.error("Critical core error: global.GoatBot.commands execution tree is unavailable");
         return;
       }
 
-      // Safe escaping and removal of bot prefix
-      const botPrefix = global.GoatBot?.config?.prefix || "/";
-      let cleanBody = body;
-      
-      if (body.startsWith(botPrefix)) {
-        cleanBody = body.slice(botPrefix.length).trim();
-      }
-
-      const args = cleanBody.split(/\s+/);
+      // যেহেতু প্রিফিক্স নাই, ডিরেক্ট মেসেজ বডি থেকেই স্প্লিট করা হচ্ছে
+      const args = body.split(/\s+/);
       const commandName = args.shift()?.toLowerCase();
       if (!commandName) return;
 
@@ -118,10 +116,9 @@ module.exports = {
       );
 
       // ────────────────────────────────────────────────────────
-      // 🚫 COMMAND NOT FOUND (Silent Exit - No Spam)
+      // 🚫 COMMAND NOT FOUND (Silent Exit - No Message, Completely Silent)
       // ────────────────────────────────────────────────────────
       if (!command) {
-        // Anti-spam registry tracking for unmapped queries
         const currentTime = Date.now();
         const spamKey = `${senderID}_${commandName}`;
 
@@ -132,11 +129,9 @@ module.exports = {
           }
         }
         global.__SiyamSpamRegistry.set(spamKey, currentTime);
-
-        // State validation sync
         validateAndRefreshCache(commands);
         
-        // All error/suggestion messages removed to prevent spamming
+        // ভুল ভাল কিছু লিখলে একদম চুপ থাকবে
         return; 
       }
 
@@ -145,7 +140,8 @@ module.exports = {
       // ────────────────────────────────────────────────────────
       const disabledCommands = global.GoatBot?.config?.commandDisabled || [];
       if (disabledCommands.includes(command.config?.name)) {
-        return message.reply(`[WARN] The command "${command.config.name}" is currently disabled in the bot configuration.`);
+        // ফালতু কোনো ওয়ার্নিং দিয়ে চ্যাট স্প্যাম করবে না, সাইলেন্ট এক্সিট
+        return;
       }
 
       // ────────────────────────────────────────────────────────
@@ -153,7 +149,7 @@ module.exports = {
       // ────────────────────────────────────────────────────────
       if (typeof command.onStart !== "function") {
         logger.warn(`Execution blocked: onStart function is missing in [${commandName}] module.`);
-        return message.reply("[ERROR] Unable to execute command due to missing internal core handler.");
+        return; // অতিরিক্ত এরর মেসেজ পাঠানো বন্ধ
       }
 
       // Context preservation using GoatBot parameters
@@ -164,17 +160,15 @@ module.exports = {
       };
 
       try {
-        // Runs the target command seamlessly without triggering suggestions
+        // শুধুমাত্র প্রিফিক্স ছাড়া মেসেজের ক্ষেত্রে কমান্ডটি পারফেক্টলি একবারই রান হবে
         await command.onStart(clonedParams);
-        logger.info(`SUCCESS: [${commandName}] successfully invoked by Admin/Owner: ${senderID}`);
+        logger.info(`SUCCESS: No-Prefix [${commandName}] successfully invoked by: ${senderID}`);
       } catch (execError) {
-        logger.error(`Core crash intercepted inside command [${commandName}] ->`, execError);
-        return message.reply("[ERROR] An internal module error occurred during execution. Please check console logs.");
+        logger.error(`Core crash caught inside command [${commandName}] ->`, execError);
       }
 
     } catch (err) {
-      // Global Exception Recovery Shield
-      logger.error("Unhandled runtime exception caught safely inside global wrapper ->", err.message || err);
+      logger.error("Unhandled runtime exception safely caught ->", err.message || err);
     }
   }
 };
