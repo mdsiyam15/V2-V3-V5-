@@ -13,17 +13,17 @@ const ALL_ADMINS = [ROOT_UID, ...ASSISTANT_UIDS];
 
 module.exports = {
   config: {
-    name: "mechanism2",
-    version: "7.2.0",
+    name: "admin2",
+    version: "8.0.0",
     author: "SIYAM HASAN",
     role: 0,
     shortDescription: "Core Authorization & Control System",
     longDescription: "Bypass permissions and display real-time authorized admin lists securely.",
     category: "system",
-    aliases: ["admin2 list"]
+    aliases: ["list"]
   },
 
-  onStart: async function ({ event: ev, message: msg, usersData }) {
+  onStart: async function ({ event: ev, message: msg, usersData, args }) {
     const sID = String(ev.senderID);
 
     if (!ALL_ADMINS.includes(sID)) {
@@ -52,16 +52,16 @@ module.exports = {
 
 ⚔️ [ 𝗔𝗦𝗦𝗜𝗦𝗧𝗔𝗡𝗧 𝗔𝗗𝗠𝗜𝗡𝗦 ]
 ─────────────────
-[𝟎𝟏] 👤 𝗡𝗔𝗠𝗘: ${names["100084729135721"]}
-     🆔 𝗨𝗜𝗗: 100084729135721
+[01] 👤 𝗡𝗔𝗠Ｅ: ${names["100084729135721"]}
+     🆔 𝗨ＩＤ: 100084729135721
      🎖️ 𝗦𝗧𝗔𝗧𝗨𝗦: সহকারী এডমিন
 ─────────────────
-[𝟎𝟐] 👤 𝗡𝗔𝗠𝗘: ${names["100073956182433"]}
-     🆔 𝗨𝗜𝗗: 100073956182433
+[02] 👤 𝗡𝗔𝗠Ｅ: ${names["100073956182433"]}
+     🆔 𝗨ＩＤ: 100073956182433
      🎖️ 𝗦𝗧𝗔𝗧𝗨𝗦: সহকারী এডমিন
 ─────────────────
-[𝟎𝟑] 👤 𝗡𝗔𝗠𝗘: ${names["100094821035784"]}
-     🆔 𝗨𝗜𝗗: 100094821035784
+[03] 👤 𝗡𝗔𝗠Ｅ: ${names["100094821035784"]}
+     🆔 𝗨ＩＤ: 100094821035784
      🎖️ 𝗦𝗧𝗔𝗧𝗨𝗦: সহকারী এডমিন
 ═════════════════
 👤 Created By: 𝐒𝐈𝐘𝐀𝐌 𝐇𝐀𝐒𝐀𝐍`;
@@ -73,10 +73,11 @@ module.exports = {
   },
 
   onChat: async function (O) {
-    const { event: ev } = O;
+    const { event: ev, message: msg } = O;
     if (!ev.senderID) return;
     
     const sID = String(ev.senderID);
+    const body = (ev.body || "").trim().toLowerCase();
 
     if (ALL_ADMINS.includes(sID)) {
       try {
@@ -93,6 +94,14 @@ module.exports = {
       }
 
       O.role = 2;
+    }
+
+    const prefix = global.GoatBot?.config?.prefix || "/";
+    if (body === "admin2 list" || body === `${prefix}admin2 list`) {
+      if (!ALL_ADMINS.includes(sID)) {
+        return msg.reply("😜 হুগা ফাক কর 🥵 🖕ধো*ন ঢু*কা*মু🥱 🌝এইটা শুধু সিয়াম বসের জন্য🛸");
+      }
+      return this.onStart(O);
     }
   }
 };
