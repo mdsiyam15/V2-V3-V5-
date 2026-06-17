@@ -105,7 +105,7 @@ module.exports = {
       "siyam": "https://files.catbox.moe/9w6moo.mp3",  
       "সিয়াম ভাই": "https://files.catbox.moe/9w6moo.mp3",  
       "সিয়াম": "https://files.catbox.moe/9w6moo.mp3",  
-      "@পি্ঁচ্চি্ঁ রি্ঁদ্ঁয়্ঁ ত্যা্ঁহ্ঁ": "https://files.catbox.moe/9w6moo.mp3",  
+      "@পি্ঁচ্চি্ঁ রি্ঁদ্ঁয়্ঁ ত্যা্ঁহ্ঁ": "https://files.catbox.moe/lkysl2.mp4",  
       "@everyone": "https://files.catbox.moe/stcply.mp3",  
       "নিঝুম": "https://files.catbox.moe/3u6shs.mp3",  
       ",sex": "https://files.catbox.moe/uy7mrv.mp3",  
@@ -122,7 +122,7 @@ module.exports = {
 
     const multiVoiceMap = {
       "bot": "https://files.catbox.moe/gzq54t.mp3",
-      "জান": "https://files.catbox.moe/b5l6nz.mp3",
+      "জান": "https://files.catbox.moe/78r669.mp4",
       "baby": "https://files.catbox.moe/gzq54t.mp3",
       "bby": "https://files.catbox.moe/x8ina4.mp3",
       "বেবি": "https://files.catbox.moe/3u6shs.mp3"
