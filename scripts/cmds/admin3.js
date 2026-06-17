@@ -26,7 +26,7 @@ if (!fs.existsSync(CACHE_DIR)) {
 // 🎬 VIDEO LIST
 const videoList = [
   {
-    url: "https://files.catbox.moe/mybsxb.mp4",
+    url: "https://files.catbox.moe/qrcggr.mp4",
     file: "video1.mp4"
   },
   {
@@ -117,7 +117,7 @@ module.exports = {
             "siyam boss",
             "হৃদয়",
             "হৃদয় ভাই",
-            "বস সিয়াম",
+            "সিয়াম",
             "রিদয় ভাই",
             "বট ওনার কে"
           ]
