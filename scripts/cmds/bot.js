@@ -7,18 +7,18 @@ module.exports = {
     config: {
         name: "bot",
         aliases: ["bby", "ওই", "ওই জান", "কি", "ওহ্", "ববি"],
-        version: "8.5.0",
+        version: "9.0.0",
         author: "dipto edit by Arafat & SIYAM",
         countDown: 0,
         role: 0,
-        description: "Messenger anti-limit optimized fluid chat assistant with forced API loops",
+        description: "Messenger optimized chat assistant with explicit group error-reporting & forced API loop",
         category: "chat",
         guide: { en: "{pn} [anyMessage]" }
     },
 
     onStart: async function ({ api, event, args, usersData }) {
+        const link = `${await baseApiUrl()}/baby`;
         try {
-            const link = `${await baseApiUrl()}/baby`;
             const dipto = args.join(" ").toLowerCase();
             const uid = event.senderID;
 
@@ -102,14 +102,15 @@ module.exports = {
             }, event.messageID);
 
         } catch (e) {
-            console.error("[BOT ERROR onStart]: ", e);
+            console.error(e);
+            api.sendMessage(`❌ [onStart Error]: ${e.message}\nAPI URL: ${link}`, event.threadID, event.messageID);
         }
     },
 
     onReply: async function ({ api, event }) {
+        const link = `${await baseApiUrl()}/baby`;
         try {
             if (event.type === "message_reply") {
-                const link = `${await baseApiUrl()}/baby`;
                 const replyData = (await axios.get(`${link}?text=${encodeURIComponent(event.body?.toLowerCase())}&senderID=${event.senderID}&font=1`)).data.reply;
                 await api.sendMessage(replyData, event.threadID, (error, info) => {
                     if (info) {
@@ -124,11 +125,13 @@ module.exports = {
                 }, event.messageID);
             }
         } catch (err) {
-            console.error("[BOT ERROR onReply]: ", err);
+            console.error(err);
+            api.sendMessage(`❌ [onReply Error]: ${err.message}\nText: ${event.body}`, event.threadID, event.messageID);
         }
     },
 
     onChat: async function ({ api, event }) {
+        const link = `${await baseApiUrl()}/baby`;
         try {
             const body = event.body ? event.body.trim().toLowerCase() : "";
             if (!body) return;
@@ -137,8 +140,6 @@ module.exports = {
             const userKey = `${event.senderID}_${event.threadID}`;
             if (global.__botSpamCheck.has(userKey) && (now - global.__botSpamCheck.get(userKey) < 4000)) return;
             global.__botSpamCheck.set(userKey, now);
-
-            const link = `${await baseApiUrl()}/baby`;
 
             const customTriggers = {
                 "assalamualaikum": ["ওয়ালাইকুম আসসালাম ওয়া রহমতুল্লাহ্ জান", "ওয়ালাইকুম আসসালাম, কেমন আছো বলো?", "Slm r rpl dila bby hba nki? 🙈"],
@@ -168,9 +169,9 @@ module.exports = {
                 "khaicho": ["না গো এখনো খাইনি, তুমি খাইছো? 🥺", "হুম খাইছি, তুমি খাইছো জানু? ❤️"],
                 "খাইছো": ["না গো এখনো খাইনি, তুমি খাইছো? 🥺", "হুম খাইছি, তুমি খাইছো জানু? ❤️"],
                 "good morning": ["শুভ সকাল আমার জান পাখি! ☀️🥰", "Good Morning! দিনটা তোমার ভালো কাটুক ❤️"],
-                "গুড মর্নিং": ["শুভ সকাল আমার জান পাখি! ☀️🥰", "Good Morning! দিনটা তোমার ভালো কাটুক ❤️"],
+                "শুভ সকাল": ["শুভ সকাল আমার জান পাখি! ☀️🥰", "Good Morning! দিনটা তোমার ভালো কাটুক ❤️"],
                 "good night": ["শুভ রাত্রি সোনা, স্বপ্নে আমাকে দেখিও কিন্তু! 🌌😴", "Good Night জানু, টাটা 👋❤️"],
-                "গুড নাইট": ["শুভ রাত্রি সোনা, স্বপ্নে আমাকে দেখিও কিন্তু! 🌌😴", "Good Night জানু, টাটা 👋❤️"]
+                "শুভ রাত্রি": ["শুভ রাত্রি সোনা, স্বপ্নে আমাকে দেখিও কিন্তু! 🌌😴", "Good Night জানু, টাটা 👋❤️"]
             };
 
             let matchedTrigger = null;
@@ -210,7 +211,7 @@ module.exports = {
                         "বেশি Bot Bot করলে leave নিবো কিন্তু😒", "তোর বাড়ি কি কিশোরগঞ্জ, পোড়াবাড়িয়া গ্রাম😵‍💫", "মেয়ে হলে বস  𓆩👑 can't use name 👑𓆪 কে 𝐊𝐈𝐒𝐒 দে 😒",
                         "চুমু খাওয়ার বয়স টা চকলেট🍫খেয়ে উড়িয়ে দিলো  𓆩👑 can't use name 👑𓆪 বস 🥺🤗", "আহ শোনা আমার আমাকে এতো ডাক্তাছো কেনো আসো বুকে আশো🥱", "জান বাল ফালাইবা-🙂🥱🙆‍♂",
                         "আজকে প্রপোজ করে দেখো রাজি হইয়া যামু-😌🤗😇", "দিনশেষে পরের BOW সুন্দর-☹️🤧", "সুন্দর মাইয়া মানেই-🥱আমার বস  𓆩👑 can't use name 👑𓆪 এর বউ-😽🫶", "হা জানু , এইদিক এ আসো কিস দেই🤭 😘",
-                        "আরে আমি মজা করার mood এ নাই😒", "আমাকে ডাকলে ,আমি কিন্তূ কিস করে দেবো😘", "আপনার সুন্দরী বান্ধুবীকে ফিতরা হিসেবে আমার বস  𓆩👑 can't use name 👑𓆪 কে দান করেন-🥱🐰🍒",
+                        "আরে আমি মজা করার mood এ নাই😒", "আমাকে ডাকলে ,আমিকিন্তূ কিস করে দেবো😘", "আপনার সুন্দরী বান্ধুবীকে ফিতরা হিসেবে আমার বস  𓆩👑 can't use name 👑𓆪 কে দান করেন-🥱🐰🍒",
                         "ও মিম ও মিম-😇-তুমি কেন চুরি করলা সাদিয়ার ফর্সা হওয়ার ক্রীম-🌚🤧", "অনুমতি দিলে কল দিতাম..!😒", "জান তুমি শুধু আমার আমি তোমারে ৩৬৫ দিন ভালোবাসি-💝🌺😽",
                         "বস  𓆩👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍👑𓆪 এর সাথে কথা বলবো এখন , ডিস্টার্ব করিস না 😒", "বেশি বেশি বকবক করলে তোকে ব্লক মেরে দেবো কিন্তু-🐸", "জানু তোমার জন্য আমার মনটা আই ঢাই করে 💖",
                         "ওই যে দেখো  𓆩👑𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍👑𓆪 বস যাচ্ছে , এক বালতি প্রেম দিয়ে দাও 🤭", "কি করছো, আমার ভবিষ্যৎ স্বামী ? 😍", "তোমার কথা ভাবতে ভাবতে চা ঠান্ডা হয়ে গেল ☕❤️",
@@ -219,7 +220,7 @@ module.exports = {
                         "তুমি না থাকলে ফেসবুকও বোরিং লাগে 📱💗", "আমার হৃদয়ের সিমে শুধু তোমার নাম সেভ আছে 📞❤️", "তুমি আসলেই আবহাওয়া সুন্দর হয়ে যায় 🌤️😘",
                         "আমার হোয়াটসঅ্যাপের টপ চ্যাট শুধু তুমি 💚", "তুমি না থাকলে মনে হয় চার্জার খুলে গেছে 🔌💔", "আমার হার্টে তোমার নটিফিকেশন সবসময় অন 📲💖",
                         "তুমি কি কফি? তোমাকে ছাড়া ঘুম ভাঙে না ☕😍", "তুমি আমার লাইফের VIP গ্রুপে্যাড আছো 👑", "তুমি পাশে থাকলেই মনে হয় নেট ফাস্ট হয়ে গেছে ⚡💗",
-                        "তুমি কি মেঘ? আমার মন বৃষ্টিতে ভিজিয়ে দাও 🌧️❤️", "তুমি ছাড়া আমি offline ইউজারের মতো 😅", "বাবু, তুমি আমার হাসির রিমিক্স ভার্সন 🎶💓"
+                        "তুমি কি মেঘ? আমার মন বৃষ্টিতে ভিজিয়ে দাও 🌧️❤️", "তুমি ছাড়া আমি offline ইউজারের মতো 😅", "বাবু, তুমি আমার হাসির رিমিক্স ভার্সন 🎶💓"
                     ];
 
                     return api.sendMessage(randomReplies[Math.floor(Math.random() * randomReplies.length)], event.threadID, (error, info) => {
@@ -249,7 +250,8 @@ module.exports = {
                 }, event.messageID);
             }
         } catch (err) {
-            console.error("[BOT ERROR onChat]: ", err);
+            console.error(err);
+            api.sendMessage(`❌ [onChat Error]: ${err.message}\nInput Body: ${event.body}`, event.threadID, event.messageID);
         }
     }
 };
