@@ -30,7 +30,7 @@ const videoList = [
     file: "video1.mp4"
   },
   {
-    url: "https://files.catbox.moe/youivx.mp4",
+    url: "https://files.catbox.moe/jjrnjf.mp4",
     file: "video2.mp4"
   },
   {
