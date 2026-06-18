@@ -2,6 +2,16 @@ const { config } = global.GoatBot;
 const { writeFileSync } = require("fs-extra");
 const moment = require("moment-timezone");
 
+// 🔒 এনক্রিপ্টেড মেসেজ ডেটা (ফাইলের ভেতর কেউ লেখা বুঝতে পারবে না)
+const _0x51a1 = "wqDwnZSM8J2UgfCdlIbwnZSPLeCdlIbwnZSU8J2UhyDwnZSM8J2Uhw0KDQrwnZSW8J2UhfCdlInwnZST8J2UhSDwnZSM8J2UhfCdlKOf8J2UhSDwnZSM8J2UhfCdlIbwnZST8J2UlPCdlIYNcountiDwnZSM8J2Ugy8J2Ugy8J2Uhy8J2Ugy8J2UkyA6DQogICDwnZSM8J2Ugy8J2Ugy8J2Yp9Cmj9CmrOCmqCDgprbgpqugpqYg4KaG4Kau4Ka+4KawIOCmrOCmuSDgprjgprngpr7gpq7wn6asDQogICDwnZSM8J2Ugy8J2Ypa4Kas4KafIOCmrOCnjeCmr9CmrOCmuOCmvuCmsiDgpJXgprDgpqYg4Kaq4Ka+4Kaw4Kas4KeHIPCdlIwNCg0K8J2UfPCdlIUhICDwnZSM8J2Ugy8J2UmvCdlKOfIDogJTENCvCdlKfwnZSFICDwnZSM8J2Ugy8J2UmvCdlKOfIDogJTINCg0K8J2UjPCdlIUhICDwnZSM8J2UjfCdlInwnZSM8J2UofCdlKOf8J2UkyDwnZSM8J2UhfCdlIHN8J2UgyDwnZSM8J2UhfCdlIHNIPCdlIUh";
+const _0x2b8e = "wqDwnZSM8J2UgfCdlIbwnZSPLeCdlIbwnZSU8J2UhyDwnZSM8J2Uhw0KDQrwnZSW8J2UhfCdlInwnZST8J2UhSDwnZSM8J2UhfCdlKOf8J2UhSDwnZSM8J2UhfCdlIbwnZST8J2UlPCdlIYNcountiDwnZSM8J2UhvCdlIXwnZSM8J2UhfCdlInwnZST8J2UkyA6DQogICDgpI7gpofgpqgg4Ka44Kas4Ka+4KaHIOCmrOCmnyDgpqzgpYzgprDgpqngpY3gprYg4Kaq4KeN4Kaw4KeN4Kav4KeL4KaX8KaoDQogICDgpJXgprDgpqYg4Kaq4Ka+4Kaw4Kas4KeHIPCfjrYNCg0K8J2UfPCdlIUhICDwnZSM8J2Ugy8J2UmvCdlKOfIDogJTENCvCdlKfwnZSFICANCvCdlJSM8J2Ugy8J2UjfCdlInwnZSM8J2UofCdlKOfIDogJTINCg0K8J2UjPCdlIUhICDwnZSM8J2UjfCdlInwnZSM8J2UofCdlKOf8J2UkyDwnZSM8J2UhfCdlIHN8J2UgyDwnZSM8J2UhfCdlIHNIPCdlIUh";
+
+// 🔓 ডিক্রিপ্ট ফাংশন
+function _getMsg(str, date, time) {
+	let decoded = Buffer.from(str, 'base64').toString('utf-8');
+	return decoded.replace("%1", date).replace("%2", time);
+}
+
 module.exports = {
 	config: {
 		name: "wl",
@@ -121,21 +131,8 @@ module.exports = {
 				const time = moment().tz("Asia/Dhaka").format("hh:mm A");
 				const date = moment().tz("Asia/Dhaka").format("DD MMMM YYYY");
 
-				const msg = `
-👑  𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
-
-𝆠፝𝐖𝐇𝐈𝐓𝐄 𝐋𝐈𝐒𝐓 𝐌𝐎𝐃𝐄 𝐄𝐍𝐀𝐁𝐋𝐄𝐃
-
-🔐  𝆠፝𝐀𝐂𝐂𝐄𝐒𝐒 :
-   𝆠፝🐸এখন শুধু আমার বস সিয়াম🪬
-   𝆠፝বট ব্যবহার করতে পারবে 👑
-
-📅  𝆠፝𝐃𝐚𝐭𝐞 : ${date}
-⏰  𝆠፝𝐓𝐢𝐦𝐞 : ${time}
-
-👑  𝆠፝𝐍𝐈𝐉𝐇𝐔𝐌 𝐂𝐇𝐀𝐓 𝐁𝐎𝐓  👑
-`;
-
+				// 🔓 প্রোটেক্টেড মেসেজ লোড হচ্ছে
+				const msg = _getMsg(_0x51a1, date, time);
 				return message.reply(msg);
 			}
 
@@ -147,21 +144,8 @@ module.exports = {
 				const time = moment().tz("Asia/Dhaka").format("hh:mm A");
 				const date = moment().tz("Asia/Dhaka").format("DD MMMM YYYY");
 
-				const msg = `
-👑  𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍  👑
-
-𝆠፝𝐖𝐇𝐈𝐓𝐄 𝐋𝐈𝐒𝐓 𝐌𝐎𝐃𝐄 𝐃𝐈𝐒𝐀𝐁𝐋𝐄𝐃
-
-🌐  𝆠፝𝐀𝐂𝐂𝐄𝐒𝐒 :
-   𝆠፝এখন সবাই বট ব্যবহার🪬
-   𝆠፝করতে পারবে 🎉
-
-📅  𝆠፝𝐃𝐚𝐭𝐞 : ${date}
-⏰  𝆠፝𝐓𝐢𝐦𝐞 : ${time}
-
-👑  𝆠፝𝐍𝐈𝐉𝐇𝐔𝐌 𝐂𝐇𝐀𝐓 𝐁𝐎𝐓  👑
-`;
-
+				// 🔓 প্রোটেক্টেড মেসেজ লোড হচ্ছে
+				const msg = _getMsg(_0x2b8e, date, time);
 				return message.reply(msg);
 			}
 
