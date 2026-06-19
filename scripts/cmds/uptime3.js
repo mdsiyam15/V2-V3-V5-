@@ -2,8 +2,8 @@ const os = require("os");
 
 module.exports = {
   config: {
-    name: "uptime9",
-    aliases: ["up9", "upt"],
+    name: "uptime3",
+    aliases: ["up3", "upt3"],
     version: "5.1",
     author: "Alamin",
     role: 0,
@@ -82,7 +82,7 @@ module.exports = {
 💻 ᴍᴇᴍᴏʀʏ : ${memoryUsage} MB
 👥 ᴛᴏᴛᴀʟ ᴜꜱᴇʀꜱ : ${totalUsers}
 💬 ᴛᴏᴛᴀʟ ᴛʜʀᴇᴀᴅꜱ : ${totalThreads}
-👑 ᴏᴡɴᴇʀ  : Mohammad Alamin
+👑 𝗢𝗪𝗡𝗘𝗥 ➜ 𝆠፝𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍 👑  
       `.trim();
 
       await delay(300);
