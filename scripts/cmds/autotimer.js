@@ -5,10 +5,10 @@ const path = require("path");
 
 module.exports.config = {
   name: "autotimer",
-  version: "15.0",
+  version: "11.5",
   role: 0,
   author: "ꜰᴀʀʜᴀɴ-ᴋʜᴀɴ",
-  description: "⏰ ২৪ ঘণ্টায় ২৪টি নির্দিষ্ট ভিডিও ও টেক্সট পাঠাবে (১০০% সব গ্রুপ কাভারেজ ও অ্যান্টি-ব্যান)",
+  description: "⏰ ২৪ ঘণ্টায় ২৪টি নির্দিষ্ট ভিডিও ও টেক্সট পাঠাবে (অ্যান্টি-ব্যান ও সেফ লিমিটসহ)",
   category: "AutoTime",
   countDown: 3,
 };
@@ -20,11 +20,12 @@ if (!fs.existsSync(cacheDir)) {
   fs.mkdirSync(cacheDir, { recursive: true });
 }
 
+// ✅ বট রিস্টার্ট দিলে যেন ডিফল্টভাবে ON থাকে
 if (!fs.existsSync(statusFile)) {
   fs.writeJsonSync(statusFile, { enabled: true });
 }
 
-// ✅ ২৪ ঘণ্টার নির্দিষ্ট আলাদা ভিডিও লিংক এবং টেক্সট ডেটা
+// ✅ ২৪ ঘণ্টার ২৪টি নির্দিষ্ট আলাদা ভিডিও লিংক এবং আলাদা টেক্সট ডেটা সেটআপ
 const timerData = {
   "12:00 AM": { text: "🌌 এখন রাত ১২টা বাজে❥︎নতুন দিন শুরু হলো ✨", url: "https://files.catbox.moe/2ii8c7.mp4" },
   "01:00 AM": { text: "🌙 এখন রাত ১টা বাজে❥︎গভীর রাত, ঘুমাও সবাই 🤫", url: "https://files.catbox.moe/ah0s9r.mp4" },
@@ -63,23 +64,9 @@ const startupTexts = [
 ];
 
 let lastSentTime = "";
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// 🛠️ নিখুঁতভাবে ১টিও বাদ না রেখে সমস্ত গ্রুপ আইডি বের করার নির্ভরযোগ্য ফাংশন
-async function getAllGroups(api) {
-  try {
-    // ৫০০টি চ্যাট লিস্ট একবারে রিকোয়েস্ট করবে (ফেসবুক লিমিটের সর্বোচ্চ সেফ সাইড)
-    const threadList = await api.getThreadList(500, null, ["INBOX"]);
-    if (!threadList) return [];
-    return threadList.filter(thread => thread.isGroup === true && thread.threadID !== null);
-  } catch (error) {
-    console.error("❌ Error fetching group list:", error.message);
-    return [];
-  }
-}
 
 module.exports.onLoad = async function ({ api }) {
-  console.log("🔥 AUTOTIMER LOADED (100% GROUPS GUARANTEED)");
+  console.log("🔥 AUTOTIMER LOADED");
 
   if (module.exports.config.author !== "ꜰᴀʀʜᴀɴ-ᴋʜᴀɴ") {
     console.error("❌ Author Changed");
@@ -88,6 +75,7 @@ module.exports.onLoad = async function ({ api }) {
 
   // 🚀 স্টার্টআপ নোটিফিকেশন ফাংশন
   const handleStartupAnnouncement = async () => {
+    console.log("🚀 Startup function running");
     try {
       const startupVideoUrl = "https://files.catbox.moe/jjrnjf.mp4";
       const startupVideoPath = path.join(cacheDir, "bot_startup_video.mp4");
@@ -107,21 +95,25 @@ module.exports.onLoad = async function ({ api }) {
 │  👑𝗢𝗪𝗡𝗘𝗥 ➜ 𝆠፝𝐒𝐈𝐘𝐀𝐌 👑
 ╰───────────────⭓`;
 
-      const groups = await getAllGroups(api);  
-      console.log(`📨 [STARTUP] Total Found Groups: ${groups.length}`);
+      // লিমিট এড়াতে সর্বোচ্চ ২০টি রিসেন্ট গ্রুপ ইনবক্স নেওয়া হয়েছে
+      const allThreads = await api.getThreadList(20, null, ["INBOX"]);  
+      const groups = allThreads.filter(thread => thread.isGroup);  
 
-      // ১টিও বাদ যাবে না, সিকিউরড ফর লুপ (২ সেকেন্ড ডিলে দিয়ে ফেসবুকের সেফটি বজায় রেখে পাঠানো হবে)
-      for (const group of groups) {
-        api.sendMessage({  
-          body: startupMsg,  
-          attachment: fs.createReadStream(startupVideoPath)  
-        }, group.threadID, (err, info) => {
-          if (!err && info && info.messageID) {  
-            setTimeout(() => { api.unsendMessage(info.messageID); }, 30 * 60 * 1000); 
-          }  
-        });
-        await sleep(2000); 
-      }
+      console.log("📨 Sending startup message to groups:", groups.length);
+
+      // প্রতিটি গ্রুপে ৩ সেকেন্ড ডিলে দিয়ে মেসেজ পাঠানো (সেফটি ফিচার)
+      groups.forEach((thread, index) => {
+        setTimeout(() => {
+          api.sendMessage({  
+            body: startupMsg,  
+            attachment: fs.createReadStream(startupVideoPath)  
+          }, thread.threadID, (err, info) => {
+            if (!err && info && info.messageID) {  
+              setTimeout(() => { api.unsendMessage(info.messageID); }, 30 * 60 * 1000); 
+            }  
+          });
+        }, index * 3000); 
+      });
 
     } catch (err) {  
       console.error("❌ Error sending startup announcement:", err.message);
@@ -133,6 +125,7 @@ module.exports.onLoad = async function ({ api }) {
 
   // অটো টাইমার কোর ফাংশন
   const checkTimeAndSend = async () => {
+    console.log("⏰ Timer Check:", moment().tz("Asia/Dhaka").format("hh:mm:ss A"));
     try {
       if (!fs.existsSync(statusFile)) return;
       const statusData = fs.readJsonSync(statusFile);
@@ -142,6 +135,7 @@ module.exports.onLoad = async function ({ api }) {
       const minutes = currentTime.format("mm");  
       const now = currentTime.format("hh:00 A");  
 
+      // কাঁটায় কাঁটায় ০০ মিনিট না হলে ব্যাক করবে
       if (minutes !== "00") return;  
       if (!timerData[now]) return;  
 
@@ -158,6 +152,7 @@ module.exports.onLoad = async function ({ api }) {
         if (!fs.existsSync(videoPath) || fs.statSync(videoPath).size === 0) {  
           const response = await axios.get(videoUrl, { responseType: "arraybuffer" });  
           fs.writeFileSync(videoPath, Buffer.from(response.data));  
+          console.log("📥 Downloaded:", videoName);  
         }  
 
         const text = currentHourData.text;  
@@ -173,31 +168,36 @@ module.exports.onLoad = async function ({ api }) {
 │ 👑𝗢𝗪𝗡𝗘𝗥 ➜ 𝆠፝𝐒𝐈𝐘𝐀𝐌 👑
 ╰───────────────⭓`;
 
-        const groups = await getAllGroups(api);  
-        console.log(`⏰ [HOURLY] Sending Routine to ${groups.length} groups.`);
+        const allThreads = await api.getThreadList(20, null, ["INBOX"]);  
+        const groups = allThreads.filter(thread => thread.isGroup);  
 
-        // সব গ্রুপে নিখুঁতভাবে সেন্ড করার মূল মেকানিজম
-        for (const group of groups) {
-          const mentions = group.participantIDs ? group.participantIDs.map(uid => ({ tag: "@", id: uid })) : [];  
+        console.log("📨 Sending regular message to groups:", groups.length);
 
-          api.sendMessage({  
-            body: msg,  
-            mentions,  
-            attachment: fs.createReadStream(videoPath)  
-          }, group.threadID, (err, info) => {  
-            if (!err && info && info.messageID) {  
-              setTimeout(() => { api.unsendMessage(info.messageID); }, 30 * 60 * 1000);  
-            }  
-          });
-          await sleep(2000); // প্রতিটি গ্রুপের মাঝে ২ সেকেন্ড বিরতি যাতে একবারে ফেসবুক অ্যাকশন ব্লক না দেয়।
-        }
+        // সেফটি ডিলে ৩ সেকেন্ড প্রতি গ্রুপের জন্য
+        groups.forEach((thread, index) => {
+          setTimeout(() => {
+            const mentions = thread.participantIDs ? thread.participantIDs.map(uid => ({ tag: "@", id: uid })) : [];  
+
+            api.sendMessage({  
+              body: msg,  
+              mentions,  
+              attachment: fs.createReadStream(videoPath)  
+            }, thread.threadID, (err, info) => {  
+              if (!err && info && info.messageID) {  
+                setTimeout(() => { api.unsendMessage(info.messageID); }, 30 * 60 * 1000);  
+              }  
+            });
+          }, index * 3000);
+        });
+
+        console.log("✅ Scheduled routine video for:", now);  
       }  
     } catch (err) {  
       console.error("❌ Error in interval:", err.message);  
     }
   };
 
-  // প্রতি ১ মিনিটে একবার নিখুঁতভাবে টাইম মিলিয়ে দেখবে
+  // স্প্যাম এড়াতে প্রতি ১ মিনিটে (60000ms) একবার চেক করবে
   setInterval(checkTimeAndSend, 60000);
 };
 
@@ -224,7 +224,7 @@ module.exports.onStart = async function ({ api, event, args }) {
     lastSentTime = ""; 
 
     return api.sendMessage(
-      "╔═════ஜ۩☢۩ஜ═════╗\n   ⏰ 👑 𝐀𝐔𝐓𝐎 𝐓𝐈𝐌𝐄𝐑 𝐎𝐍 ✅\n   ✡️ এখন থেকে ১টিও বাদ না রেখে সব গ্রুপে অটো ভিডিও যাবে📥\n╚═════ஜ۩☢۩ஜ═════╝",
+      "╔═════ஜ۩☢۩ஜ═════╗\n   ⏰ 👑 𝐀𝐔𝐓𝐎 𝐓𝐈𝐌𝐄𝐑 𝐎𝐍 ✅\n   ✡️ এখন থেকে অটো ভিডিও যাবে📥\n╚═════ஜ۩☢۩ஜ═════╝",
       event.threadID,
       event.messageID
     );
@@ -237,7 +237,7 @@ module.exports.onStart = async function ({ api, event, args }) {
     fs.writeJsonSync(statusFile, { enabled: false });
 
     return api.sendMessage(
-      "╔═════ஜ۩☢۩ஜ═════╗\n   🔴 𝘼𝙐𝙏𝙊 𝙏𝙄𝙈𝙀 𝙊𝙁𝙁 ⚙️\n   🔐 এখন আর অটো ভিডিও যাবে না🔕\n╚═════ஜ۩۩ஜ═════╝",
+      "╔═════ஜ۩☢۩ஜ═════╗\n   🔴 𝘼𝙐𝙏𝙊 𝙏𝙄𝙈𝙀?? 𝙊??𝙁 ⚙️\n   🔐 এখন আর অটো ভিডিও যাবে না🔕\n╚═════ஜ۩۩ஜ═════╝",
       event.threadID,
       event.messageID
     );
