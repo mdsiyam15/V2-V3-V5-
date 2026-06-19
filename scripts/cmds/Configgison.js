@@ -105,7 +105,7 @@ module.exports = {
 
       const bossName = await getName(CONFIG.BOSS_OWNER_UID, "পি্ঁচ্চি্ঁ রি্ঁদ্ঁয়্ঁ ত্যা্ঁহ্ঁ");  
 
-      const msg = `👑 ══『 𝗔𝗕𝗦𝗢𝗟𝗨𝗧𝗘 𝗔𝗗𝗠𝗜𝗡 𝗗𝗜𝗥𝗘𝗖𝗧𝗢𝗥𝗬 』══ 👑
+      const msg = `👑 ══『𝐒𝐈𝐘𝐀𝐌-𝐇𝐀𝐒𝐀𝐍』══ 👑
 👤 𝗢𝗪𝗡𝗘𝗥
 ┣ 🆔 ${CONFIG.BOSS_OWNER_UID}
 ┣ ⚡ 𝗔𝗟𝗟 𝗣𝗢𝗪𝗘𝗥𝗙𝗨𝗟 𝗥𝗢𝗢𝗧
