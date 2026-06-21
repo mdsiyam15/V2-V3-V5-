@@ -64,7 +64,7 @@ module.exports = {
 │ 👥 USERS: ${threadInfo.participantIDs.length} Members
 │ 📡 PING: ${ping}ms
 ├─────────────────
-│ 🔗 𝗚𝗜𝗧𝗛𝗨𝗕 : https://github.com-maker/siyam-.git`;
+│ 🔗 𝗚𝗜𝗧𝗛𝗨𝗕 : https:/github.com-maker/siyam-.git`;
     } 
     
     else if (currentDesign === 1) {
