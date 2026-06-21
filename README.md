@@ -30,7 +30,7 @@
 
 ---
 
-## ⚡ 𝐆𝐎𝐀𝐓-𝐁𝐎𝐓-𝐕𝟐 • 𝐕𝟑 • 𝐕𝟓 ⚡
+## ⚡ 𝐆𝐎𝐀𝐓-𝐁𝐎𝐓- 𝐕𝟑 • 𝐕𝟓 ⚡
 
 <div align="center" style="max-width:820px; margin:auto; padding:20px; background:#111; border-radius:20px; box-shadow:0 0 15px #0099ff;">
   <h2 style="color:#00c4ff;">📹 𝗦𝗲𝘁𝘂𝗽 𝗧𝘂𝘁𝗼𝗿𝗶𝗮𝗹</h2>
@@ -72,9 +72,13 @@
 ______________________________________
 - ➪ 𝐍𝐀𝐌𝐄 : 𓆩𝐒𝐈𝐘𝐀𝐌 𝐇𝐀𝐒𝐒𝐀𝐍𓆪  
 - ➪ 𝐑𝐄𝐋𝐈𝐆𝐈𝐎𝐍 : 𝐈𝐒𝐋𝐀𝐌  
-- ➪ 𝐀𝐃𝐃𝐑𝐄𝐒𝐒 : 𝐊𝐈𝐒𝐇𝐎𝐑𝐆𝐀𝐍𝐉, 𝐁𝐀𝐍𝐆𝐋𝐀𝐃𝐄𝐒𝐇  
+- ➪ 𝐀𝐃𝐃𝐑𝐄𝐒𝐒 : 𝐊𝐈𝐒𝐇𝐎𝐑𝐆𝐀𝐍𝐉  
 - ➪ 𝐄𝐃𝐔𝐂𝐀𝐓𝐈𝐎𝐍 : 𝐒𝐓𝐔𝐃𝐄𝐍𝐓  
-- ➪ 𝐑𝐄𝐋𝐀𝐓𝐈𝐎𝐍𝐒𝐇𝐈𝐏 : 𝐒𝐈𝐍𝐆𝐋𝐄  
+- ➪ 𝐑𝐄𝐋𝐀𝐓𝐈𝐎𝐍𝐒𝐇𝐈𝐏 : 𝐒𝐈𝐍𝐆𝐋𝐄
+- ➪ 🔰 𝗣𝗥𝗘𝗙𝗜𝗫 ➜ { , }
+- ➪ 📊 𝗧𝗢𝗧𝗔𝗟 𝗖𝗢𝗠𝗠𝗔𝗡𝗗𝗦 ➜ 𝟔𝟎𝟗𝟔
+- ➪ ⚙️ 𝗦𝗨𝗣𝗣𝗢𝗥𝗧 ➜ 𝐕𝟐 • 𝐕𝟑 • 𝐕𝟓
+- ➪ 📞 +𝟴𝟴𝟬𝟭𝟳𝟴𝟵𝟭𝟯𝟴𝟭𝟱𝟳
 
 ---
 
@@ -100,11 +104,11 @@ ______________________________________
 <img width="30px" src="https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/github.svg">
 </a>
 
-<a href="https://facebook.com/61560326905548">
+<a href="https://www.facebook.com/profile.php?id=61590360434650">
 <img width="30px" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/facebook.svg">
 </a>
 
 ---
 
-<h2 align="center">𝐒𝐈𝐘𝐀𝐌 𝐈𝐒 𝐍𝐎𝐓 𝐀 𓆩𝐍𝐀𝐌𝐄𓆪  
-😈 𝐈𝐓'𝐒 𝐀 𝐁𝐑𝐀𝐍𝐃 😈</h2>
+<h2 align="center"> -𝐒𝐈𝐘𝐀𝐌-𝐈𝐒 𝐍𝐎𝐓 𝐀 𓆩𝐍𝐀𝐌𝐄𓆪  
+😈 𝐈𝐓'𝐒 𝐀 𝐁𝐑𝐀𝐍𝐃 </h2>
