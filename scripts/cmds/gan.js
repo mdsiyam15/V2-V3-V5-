@@ -32,6 +32,15 @@ module.exports = {
     }
 
     const songLinks = [
+      "https://files.catbox.moe/jx9cpq.mp4",
+      "https://files.catbox.moe/jzg3j7.mp4",
+      "https://files.catbox.moe/m4nggm.mp4",
+      "https://files.catbox.moe/dbxfju.mp4",
+      "https://files.catbox.moe/xx6d7i.mp4",
+      "https://files.catbox.moe/0gncxf.mp4",
+      "https://files.catbox.moe/gcm88s.mp4",
+      "https://files.catbox.moe/yz23lp.mp4",
+
       "https://files.catbox.moe/etsdn9.mp3",
       "https://files.catbox.moe/ayepdz.mp3",
       "https://files.catbox.moe/oaecnx.mp3",
